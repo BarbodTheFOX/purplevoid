@@ -1,0 +1,12 @@
+node_modules/
+.next/
+.vinext/
+dist/
+.wrangler/
+.openai/*.log
+playwright-report/
+test-results/
+coverage/
+.env*.local
+*.tsbuildinfo
+tmp/
