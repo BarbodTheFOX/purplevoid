@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { BrandMark } from "./brand-mark";
 
 export function SiteHeader() {
@@ -7,9 +6,9 @@ export function SiteHeader() {
       <div className="shell header-inner">
         <BrandMark />
         <nav aria-label="ناوبری اصلی" className="header-nav">
-          <Link href="/methodology">روش‌شناسی</Link>
-          <Link href="/privacy">حریم خصوصی</Link>
-          <Link className="button button-small button-ghost" href="/test">شروع تست</Link>
+          <a href="/methodology">روش‌شناسی</a>
+          <a href="/privacy">حریم خصوصی</a>
+          <a className="button button-small button-ghost" href="/test">شروع تست</a>
         </nav>
       </div>
     </header>

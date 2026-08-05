@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { AXES, AXIS_IDS } from "../data/axes";
 import {
   ARCHETYPE_INTERPRETATIONS,
@@ -18,19 +17,18 @@ import { formatPersianNumber } from "@/lib/format";
 import { AxisRadar } from "./axis-radar";
 
 export function ResultsView() {
-  const router = useRouter();
   const [result, setResult] = useState<ScoredResult | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const stored = readResult();
     if (!stored) {
-      router.replace("/test");
+      window.location.replace("/test");
       return;
     }
     setResult(stored);
     setReady(true);
-  }, [router]);
+  }, []);
 
   const orderedAxes = useMemo(() => {
     if (!result) return [];
@@ -54,7 +52,7 @@ export function ResultsView() {
   function restart() {
     if (!window.confirm("همه پاسخ‌ها و این نتیجه پاک شود و آزمون از ابتدا شروع شود؟")) return;
     eraseTestData();
-    router.replace("/test");
+    window.location.replace("/test");
   }
 
   return (

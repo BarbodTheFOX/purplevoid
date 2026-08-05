@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { AXES, AXIS_IDS } from "@/features/test/data/axes";
 
 const dimensionDescriptions = {
@@ -25,8 +24,8 @@ export default function HomePage() {
               نه برای ساختن یک هویت ثابت، بلکه برای پیدا کردن مسیر تمرین فعلی.
             </p>
             <div className="hero-actions">
-              <Link className="button" href="/test" data-testid="start-test">شروع تست</Link>
-              <Link className="button button-subtle" href="/methodology">این تست چه چیزی می‌سنجد؟</Link>
+              <a className="button" href="/test" data-testid="start-test">شروع تست</a>
+              <a className="button button-subtle" href="/methodology">این تست چه چیزی می‌سنجد؟</a>
               <span className="hero-note">حدود ۸ تا ۱۲ دقیقه · بدون نیاز به ثبت‌نام</span>
             </div>
           </div>

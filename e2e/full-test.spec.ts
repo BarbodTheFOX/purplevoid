@@ -5,6 +5,7 @@ test("completes all 35 questions and keeps the result stable after refresh", asy
   await page.goto("/");
   await page.getByTestId("start-test").click();
   await expect(page).toHaveURL(/\/test$/);
+  await expect(page.getByTestId("test-intro")).toHaveAttribute("data-ready", "true");
 
   await page.locator('input[name="trade-count"][value="fifteen_plus"]').check();
   const beginQuestions = page.getByTestId("begin-questions");

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { BrandMark } from "./brand-mark";
 
 export function SiteFooter() {
@@ -10,8 +9,8 @@ export function SiteFooter() {
           <p>ابزاری آموزشی برای مشاهده الگوهای رفتاری اخیر در معامله‌گری.</p>
         </div>
         <nav aria-label="پیوندهای پایین صفحه">
-          <Link href="/methodology">روش‌شناسی</Link>
-          <Link href="/privacy">حریم خصوصی</Link>
+          <a href="/methodology">روش‌شناسی</a>
+          <a href="/privacy">حریم خصوصی</a>
         </nav>
         <p className="footer-version" dir="ltr">PV-BPI · BETA 1.1</p>
       </div>

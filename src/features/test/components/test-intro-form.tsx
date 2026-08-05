@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { LIKERT_OPTIONS } from "../data/questions";
 import {
   eraseTestData,
@@ -24,7 +23,6 @@ const TRADE_OPTIONS: readonly {
 ];
 
 export function TestIntroForm() {
-  const router = useRouter();
   const [tradeRange, setTradeRange] = useState<TradeCountRange | null>(null);
   const [progress, setProgress] = useState<StoredProgress | null>(null);
   const [hasResult, setHasResult] = useState(false);
@@ -59,11 +57,11 @@ export function TestIntroForm() {
       tieBreakOrder: createTieBreakOrder(tieBreakSeed),
     };
     saveProgress(nextProgress);
-    router.push("/test/questions");
+    window.location.assign("/test/questions");
   }
 
   return (
-    <div className="test-layout">
+    <div className="test-layout" data-testid="test-intro" data-ready={ready ? "true" : "false"}>
       {ready && (progress || hasResult) ? (
         <aside className="resume-banner" aria-label="آزمون ذخیره‌شده">
           <div>
@@ -73,7 +71,7 @@ export function TestIntroForm() {
           <button
             className="button button-small button-ghost"
             type="button"
-            onClick={() => router.push(hasResult ? "/results" : "/test/questions")}
+            onClick={() => window.location.assign(hasResult ? "/results" : "/test/questions")}
           >
             {hasResult ? "دیدن نتیجه" : "ادامه آزمون"}
           </button>

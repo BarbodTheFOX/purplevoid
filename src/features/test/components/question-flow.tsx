@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { LIKERT_OPTIONS, QUESTIONS } from "../data/questions";
 import { eraseTestData, readProgress, saveProgress, saveResult } from "../lib/storage";
 import { scoreTest } from "../logic/scoring";
@@ -13,20 +12,19 @@ import type {
 import { formatPersianNumber } from "@/lib/format";
 
 export function QuestionFlow() {
-  const router = useRouter();
   const [progress, setProgress] = useState<StoredProgress | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const stored = readProgress();
     if (!stored) {
-      router.replace("/test");
+      window.location.replace("/test");
       return;
     }
     const resumed = { ...stored, questionShownAt: Date.now() };
     saveProgress(resumed);
     setProgress(resumed);
-  }, [router]);
+  }, []);
 
   const question = progress ? QUESTIONS[progress.currentQuestionIndex] : null;
   const selected = useMemo(() => {
@@ -99,7 +97,7 @@ export function QuestionFlow() {
         tieBreakOrder: progress.tieBreakOrder,
       });
       saveResult(result);
-      router.push("/results");
+      window.location.assign("/results");
     } catch {
       setError("همه ۳۵ پاسخ باید کامل و معتبر باشند. لطفاً سؤال‌های قبلی را بررسی کن.");
     }
@@ -108,7 +106,7 @@ export function QuestionFlow() {
   function restart() {
     if (!window.confirm("همه پاسخ‌ها و نتیجه ذخیره‌شده پاک شود و آزمون از ابتدا شروع شود؟")) return;
     eraseTestData();
-    router.replace("/test");
+    window.location.replace("/test");
   }
 
   if (!progress || !question) {
