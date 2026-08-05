@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BrandMark } from "./brand-mark";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -7,9 +8,10 @@ export function SiteHeader() {
       <div className="shell header-inner">
         <BrandMark />
         <nav aria-label="ناوبری اصلی" className="header-nav">
-          <a href="/#what-is-void">Purple VOID چیست؟</a>
-          <a href="/#archetypes">آرکیتایپ‌ها</a>
-          <a href="/#inside-void">داخل وُید</a>
+          <Link href="/#what-is-void">Purple VOID چیست؟</Link>
+          <Link href="/#archetypes">آرکیتایپ‌ها</Link>
+          <Link href="/#exclusive-content">تجربه عضویت</Link>
+          <a href="/join">درخواست عضویت</a>
           <ThemeToggle />
           <a className="button button-small button-ghost" href="/test">شروع تست</a>
         </nav>

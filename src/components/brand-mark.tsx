@@ -1,8 +1,9 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export function BrandMark() {
   return (
-    <a className="brand-mark" href="/" aria-label="Purple VOID، محصولی از ایونتوم اسپیس">
+    <Link className="brand-mark" href="/" aria-label="Purple VOID، محصولی از ایونتوم اسپیس">
       <Image
         className="brand-symbol"
         src="/brand/eventum-symbol-purple.png"
@@ -15,6 +16,6 @@ export function BrandMark() {
         <strong dir="ltr">PURPLE VOID</strong>
         <span>از ایونتوم اسپیس</span>
       </span>
-    </a>
+    </Link>
   );
 }

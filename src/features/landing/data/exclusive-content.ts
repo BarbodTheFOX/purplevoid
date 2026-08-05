@@ -1,103 +1,70 @@
 export type ContentPillar = {
-  id: "pattern" | "training" | "depth" | "evolution";
+  id: "pattern" | "observe" | "practice" | "review";
   number: string;
   title: string;
   description: string;
   examples: readonly string[];
-  visual: "profile" | "path" | "archive" | "progress";
-};
-
-export type FeaturedContent = {
-  id: "playbook" | "voice" | "quest" | "uncut" | "workbook";
-  eyebrow: string;
-  title: string;
-  description: string;
-  format: string;
-  placeholder: boolean;
+  visual: "profile" | "path" | "tools" | "review";
 };
 
 export const CONTENT_PILLARS: readonly ContentPillar[] = [
   {
     id: "pattern",
     number: "۰۱",
-    title: "شناخت الگو",
-    description: "نتیجه تست به یک گزارش ساده ختم نمی‌شه. قدرت، سایه، محرک‌ها و رفتار تو زیر فشار به یک نقشه قابل استفاده تبدیل می‌شن.",
-    examples: ["نتیجه آرکیتایپ", "راهنمای اختصاصی", "ارزیابی پایه رفتاری"],
+    title: "الگوی خودت را بشناس",
+    description:
+      "تست ۳۵ سؤالی نشان می‌دهد در رفتار معاملاتی اخیرت کدام آرکیتایپ پررنگ‌تر بوده؛ کجا از نقطه قوتت استفاده می‌کنی و همان نقطه قوت کجا ممکن است به سایه رفتاری تبدیل شود.",
+    examples: ["آرکیتایپ غالب", "نقاط قوت و سایه رفتاری", "الگوهای تصمیم‌گیری"],
     visual: "profile",
   },
   {
-    id: "training",
+    id: "observe",
     number: "۰۲",
-    title: "تمرین رفتار",
-    description: "شناخت وقتی ارزش پیدا می‌کنه که وارد معامله بعدی بشه. مأموریت‌ها و بازتاب‌ها کمک می‌کنن یک رفتار را در عمل ببینی و تمرین بدی.",
-    examples: ["مأموریت‌های رفتاری", "Purple Quest", "بازتاب و چالش هفتگی"],
+    title: "رفتارت را مشاهده کن",
+    description:
+      "قرار نیست فقط درباره رفتار بخوانی. با تمرین‌های کوتاه، احساس قبل از ورود، تصمیم بعد از ضرر، موقعیت‌های FOMO و معامله‌های خارج از پلن را ثبت می‌کنی.",
+    examples: ["تمرین رفتاری", "Reflection روزانه یا هفتگی", "شناسایی محرک‌ها"],
     visual: "path",
   },
   {
-    id: "depth",
+    id: "practice",
     number: "۰۳",
-    title: "محتوای عمیق",
-    description: "محتوا فقط بیشتر نیست؛ یک لایه عمیق‌تره. موضوع‌ها از زاویه رفتار معامله‌گر باز می‌شن و با تمرین یا ابزار اجرایی ادامه پیدا می‌کنن.",
-    examples: ["راهنما و فایل اختصاصی", "نسخه‌های کامل و پشت‌صحنه", "یادداشت‌های صوتی"],
-    visual: "archive",
+    title: "روی الگوی خودت کار کن",
+    description:
+      "محتوای هر آرکیتایپ از زاویه همان الگو نوشته می‌شود. Purple Quest، راهنماها و فایل‌های کاربردی کمک می‌کنند یک موضوع مشخص را به چند قدم قابل انجام تبدیل کنی.",
+    examples: ["محتوای مخصوص آرکیتایپ", "Purple Quest", "PDF، چک‌لیست و Workbook"],
+    visual: "tools",
   },
   {
-    id: "evolution",
+    id: "review",
     number: "۰۴",
-    title: "ردیابی پیشرفت",
-    description: "قرار نیست فقط حس کنی بهتر شدی. ارزیابی ماهانه، زنجیره تداوم و مقایسه رفتار کمک می‌کنن مسیرت را با گذشته خودت ببینی.",
-    examples: ["مرور ماهانه", "امتیاز و زنجیره تداوم", "گزارش پیشرفت"],
-    visual: "progress",
-  },
-] as const;
-
-export const FEATURED_CONTENT: readonly FeaturedContent[] = [
-  {
-    id: "playbook",
-    eyebrow: "راهنمای اختصاصی آرکیتایپ",
-    title: "از شناخت الگو تا چک‌لیست قبل و بعد از معامله",
-    description: "ساختار Playbook شامل قدرت، سایه، محرک‌های رایج، رفتار هنگام سود و ضرر و مسیر تمرین می‌شه.",
-    format: "پیش‌نمایش سند",
-    placeholder: true,
-  },
-  {
-    id: "voice",
-    eyebrow: "یادداشت صوتی فرید",
-    title: "یک توضیح کوتاه، درست قبل از شروع هفته معاملاتی",
-    description: "رابط نمونه برای یادداشت‌های صوتی اختصاصی؛ فایل و عنوان واقعی بعد از تولید محتوا جایگزین می‌شن.",
-    format: "رابط صوتی نمونه",
-    placeholder: true,
-  },
-  {
-    id: "quest",
-    eyebrow: "Purple Quest",
-    title: "یک موضوع، چند مرحله و یک بازتاب نهایی",
-    description: "نمونه ساختار یک مسیر چندروزه برای مشاهده متمرکز یک رفتار؛ نه مسابقه و نه امتیازگیری نمایشی.",
-    format: "مسیر تمرینی",
-    placeholder: true,
-  },
-  {
-    id: "uncut",
-    eyebrow: "نسخه کامل و ادامه گفتگو",
-    title: "جایی که بحث عمومی تمام می‌شه، لایه بعدی شروع می‌شه",
-    description: "نسخه کامل گفتگوها، بخش‌های حذف‌شده و تحلیل تکمیلی تیم Eventum در این قالب قرار می‌گیرن.",
-    format: "پیش‌نمایش ویدیو",
-    placeholder: true,
-  },
-  {
-    id: "workbook",
-    eyebrow: "دفترکار رفتاری",
-    title: "محتوا را ببین، بعد روی رفتار خودت کار کن",
-    description: "فرم بازبینی معامله، بازتاب روزانه، نقشه محرک‌ها و برنامه‌های چندروزه در قالب فایل‌های قابل تکمیل ارائه می‌شن.",
-    format: "پیش‌نمایش فایل",
-    placeholder: true,
+    title: "تغییراتت را بررسی کن",
+    description:
+      "نتیجه اول، خط پایه توست. بعد از یک دوره تمرین می‌توانی یادداشت‌ها و تصمیم‌هایت را مرور کنی و تست را دوباره انجام بدهی تا تمرکز بعدی روشن‌تر شود.",
+    examples: ["ارزیابی پایه", "مرور دوره‌ای", "بازآزمایی و تعیین تمرکز بعدی"],
+    visual: "review",
   },
 ] as const;
 
 export const PERSONALIZED_PATHS = [
-  { archetype: "ORACLE", title: "تحلیلگر شواهد", preview: "خروج از چرخه تحلیل، بدون تصمیم عجولانه." },
-  { archetype: "ARCHITECT", title: "معمار فرایند", preview: "انعطاف‌پذیری، بدون از دست‌دادن ساختار." },
-  { archetype: "ALCHEMIST", title: "یادگیرنده منعطف", preview: "حفظ ثبات، در کنار میل به تغییر." },
-  { archetype: "PHANTOM", title: "ناظر هیجان", preview: "برگشتن از فاصله‌گرفتن به مشارکت آگاهانه." },
-  { archetype: "SOVEREIGN", title: "فرمانروای ریسک", preview: "قدرت تصمیم‌گیری، بدون افتادن در دام غرور." },
+  { archetype: "ORACLE", title: "تحلیلگر شواهد", preview: "تشخیص مرز میان تحلیل بیشتر و عقب‌انداختن تصمیم." },
+  { archetype: "ARCHITECT", title: "معمار فرایند", preview: "دیدن لحظه‌ای که پایبندی به ساختار به انعطاف‌ناپذیری تبدیل می‌شود." },
+  { archetype: "ALCHEMIST", title: "یادگیرنده منعطف", preview: "فرق‌گذاشتن میان یادگیری واقعی و تغییر مداوم روش." },
+  { archetype: "PHANTOM", title: "ناظر هیجان", preview: "ایجاد فاصله بعد از ضرر، بدون کناره‌گیری از تصمیم." },
+  { archetype: "SOVEREIGN", title: "فرمانروای ریسک", preview: "حفظ قانون ریسک، مخصوصاً وقتی اعتمادبه‌نفس بالا می‌رود." },
+] as const;
+
+export const DELIVERY_NOTES = [
+  {
+    title: "فایل‌های کاربردی",
+    text: "راهنمای آرکیتایپ، چک‌لیست قبل از معامله، فرم Reflection، ژورنال رفتاری و تمرین‌های هفتگی؛ هر زمان که برای مسیر مربوط آماده باشند.",
+  },
+  {
+    title: "محتوای تکمیلی Eventum",
+    text: "بسته به موضوع، ممکن است نکات یک اپیزود، سؤال‌های Reflection، تمرین مرتبط، توضیح تکمیلی فرید یا Voice Note منتشر شود.",
+  },
+  {
+    title: "تعامل‌های محدود",
+    text: "در صورت برنامه‌ریزی، ممکن است پرسش‌وپاسخ، جلسه موضوع‌محور، مرور Purple Quest یا حضور مهمان متخصص برگزار شود؛ نه به‌عنوان سرویس دائمی یا مشاوره فردی.",
+  },
 ] as const;

@@ -204,6 +204,15 @@ export function ResultsView() {
         <button className="button button-ghost" type="button" onClick={restart}>شروع آزمون جدید</button>
       </section>
 
+      <section className="result-section retest-section" aria-labelledby="membership-next-title">
+        <div>
+          <p className="eyebrow">NEXT STEP</p>
+          <h2 id="membership-next-title">می‌خواهی روی این الگو کار کنی؟</h2>
+          <p>در درخواست عضویت، نتیجه آرکیتایپ از همین مرورگر خوانده می‌شود. قبل از هر پرداخت، اطلاعات و قوانین را مرور می‌کنی.</p>
+        </div>
+        <a className="button" href="/join">درخواست عضویت</a>
+      </section>
+
       <section className="result-limitation">
         <h2>محدودیت نتیجه</h2>
         <p>این نتیجه یک برچسب ثابت شخصیتی نیست. پروفایل تو نشان می دهد در رفتار معاملاتی اخیرت کدام مهارت ها فعال تر بوده اند و کدام بخش ها به تمرین بیشتری نیاز دارند.</p>

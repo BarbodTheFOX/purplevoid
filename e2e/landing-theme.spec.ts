@@ -20,14 +20,14 @@ test("shows the exclusive membership system after the test entry", async ({ page
   await page.goto("/");
 
   const exclusive = page.locator("#exclusive-content");
-  await expect(exclusive.getByRole("heading", { name: "تست فقط الگو را نشان می‌دهد؛ کار اصلی بعدش شروع می‌شود." })).toBeVisible();
+  await expect(exclusive.getByRole("heading", { name: "تست فقط الگوی غالب را نشان می‌دهد. بخش اصلی، دیدن همان الگو در معامله‌های واقعی است." })).toBeVisible();
 
-  for (const title of ["شناخت الگو", "تمرین رفتار", "محتوای عمیق", "ردیابی پیشرفت"]) {
+  for (const title of ["الگوی خودت را بشناس", "رفتارت را مشاهده کن", "روی الگوی خودت کار کن", "تغییراتت را بررسی کن"]) {
     await expect(exclusive.getByRole("heading", { name: title, exact: true })).toBeVisible();
   }
 
-  await expect(exclusive.getByText("این بخش یک پیش‌نمایش رابط است و فایل صوتی واقعی بعداً جایگزین می‌شود.")).toBeVisible();
-  await expect(page.getByRole("link", { name: "اول الگویم را پیدا می‌کنم" })).toHaveAttribute("href", "/test");
+  await expect(exclusive.locator("audio, video")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "درخواست عضویت" }).first()).toHaveAttribute("href", "/join");
 });
 
 test("keeps the new story free of horizontal overflow on mobile", async ({ page }) => {
