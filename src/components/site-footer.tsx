@@ -6,13 +6,14 @@ export function SiteFooter() {
       <div className="shell footer-inner">
         <div>
           <BrandMark />
-          <p>ابزاری آموزشی برای مشاهده الگوهای رفتاری اخیر در معامله‌گری.</p>
+          <p>Purple VOID یک تجربه آموزشی برای مشاهده و تمرین رفتار معامله‌گره؛ محصولی از EVENTUM SPACE.</p>
         </div>
         <nav aria-label="پیوندهای پایین صفحه">
-          <a href="/methodology">روش‌شناسی</a>
+          <a href="/methodology">روش‌شناسی تست</a>
           <a href="/privacy">حریم خصوصی</a>
+          <a href="/#boundaries">مرزهای Purple VOID</a>
         </nav>
-        <p className="footer-version" dir="ltr">PV-BPI · BETA 1.1</p>
+        <p className="footer-version">نسخه آزمایشی ۱.۱</p>
       </div>
     </footer>
   );
