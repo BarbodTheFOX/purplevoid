@@ -62,7 +62,7 @@ describe("manual crypto payment", () => {
     const message = buildAdminPaymentMessage({
       displayName: "تریدر نمونه",
       telegramUsername: "@trader_sample",
-      archetype: "oracle",
+      archetype: "بینش‌گر — THE VISIONARY",
       expectedAmountLabel: "[MEMBERSHIP_PRICE]",
       currency: "[PAYMENT_CURRENCY]",
       network: "[PAYMENT_NETWORK]",
@@ -70,7 +70,7 @@ describe("manual crypto payment", () => {
     });
 
     expect(message).toContain("TxID: 0x1234567890abcdef");
-    expect(message).toContain("آرکیتایپ: ORACLE");
+    expect(message).toContain("آرکیتایپ: بینش‌گر — THE VISIONARY");
     expect(message).not.toMatch(/Seed Phrase|Private Key/i);
   });
 });

@@ -70,8 +70,9 @@ export function ResultsView() {
               {featuredAxes.map((axisId, index) => (
                 <div key={axisId}>
                   <small>{index === 0 ? (result.resultType === "blended" ? "آرکتایپ اول" : "نیروی فعال") : (result.resultType === "blended" ? "آرکتایپ دوم" : "نیروی پشتیبان")}</small>
-                  <strong dir="ltr">{AXES[axisId].englishName}</strong>
-                  <span>{AXES[axisId].persianName}</span>
+                  <strong>{AXES[axisId].persianName}</strong>
+                  <span dir="ltr">{AXES[axisId].englishName}</span>
+                  <p>{AXES[axisId].tagline}</p>
                 </div>
               ))}
             </div>
@@ -119,11 +120,15 @@ export function ResultsView() {
             const lower = Math.max(0, score - 10);
             const upper = Math.min(100, score + 10);
             return (
-              <article className="axis-result-card" key={axisId}>
+              <article className="axis-result-card" data-result-axis-id={axisId} key={axisId}>
                 <div className="axis-rank" aria-label={`رتبه نمایشی ${formatPersianNumber(index + 1)}`}>{formatPersianNumber(index + 1).padStart(2, "۰")}</div>
                 <div className="axis-result-main">
                   <div className="axis-result-heading">
-                    <div><strong dir="ltr">{AXES[axisId].englishName}</strong><span>{AXES[axisId].persianName}</span></div>
+                    <div className="axis-archetype-heading">
+                      <h3>{AXES[axisId].persianName}</h3>
+                      <span dir="ltr">{AXES[axisId].englishName}</span>
+                      <p>{AXES[axisId].tagline}</p>
+                    </div>
                     <div className="axis-score-number"><strong>{formatPersianNumber(score)}</strong><span>از ۱۰۰</span></div>
                   </div>
                   <div className="score-track" aria-label={`نمره ${formatPersianNumber(score)} با عدم قطعیت تقریبی مثبت و منفی ۱۰`}>
@@ -152,8 +157,9 @@ export function ResultsView() {
         <div className="interpretation-grid">
           {(featuredAxes.length > 0 ? featuredAxes : orderedAxes.slice(0, 2)).map((axisId) => (
             <article className="interpretation-card" key={axisId}>
-              <span dir="ltr">{AXES[axisId].englishName}</span>
               <h3>{AXES[axisId].persianName}</h3>
+              <span dir="ltr">{AXES[axisId].englishName}</span>
+              <p className="archetype-tagline">{AXES[axisId].tagline}</p>
               <p>{ARCHETYPE_INTERPRETATIONS[axisId].summary}</p>
               <div><strong>رفتار در فشار</strong><p>{ARCHETYPE_INTERPRETATIONS[axisId].pressure}</p></div>
             </article>
@@ -174,8 +180,9 @@ export function ResultsView() {
             <article className="growth-card" key={axisId}>
               <span className="growth-index">0{index + 1}</span>
               <div>
-                <strong dir="ltr">{AXES[axisId].englishName}</strong>
                 <h3>{AXES[axisId].persianName}</h3>
+                <strong dir="ltr">{AXES[axisId].englishName}</strong>
+                <p className="archetype-tagline">{AXES[axisId].tagline}</p>
                 <p>{ARCHETYPE_INTERPRETATIONS[axisId].growthPractice}</p>
               </div>
             </article>

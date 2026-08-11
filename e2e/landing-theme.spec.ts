@@ -16,24 +16,44 @@ test("switches to the light theme and keeps the choice after refresh", async ({ 
   await expect(page.getByRole("button", { name: "فعال‌کردن تم تیره" })).toBeVisible();
 });
 
-test("shows the exclusive membership system after the test entry", async ({ page }) => {
+test("shows the concise Purple VOID path", async ({ page }) => {
   await page.goto("/");
 
-  const exclusive = page.locator("#exclusive-content");
-  await expect(exclusive.getByRole("heading", { name: "تست فقط الگوی غالب را نشان می‌دهد. بخش اصلی، دیدن همان الگو در معامله‌های واقعی است." })).toBeVisible();
+  const path = page.locator("#how-it-works");
+  await expect(path.getByRole("heading", { name: "از شناخت تا تغییر، در سه قدم." })).toBeVisible();
 
-  for (const title of ["الگوی خودت را بشناس", "رفتارت را مشاهده کن", "روی الگوی خودت کار کن", "تغییراتت را بررسی کن"]) {
-    await expect(exclusive.getByRole("heading", { name: title, exact: true })).toBeVisible();
+  for (const title of ["خط پایه رفتاری‌ات را بساز.", "الگوی تکرارشونده را در معامله‌ها ببین.", "روی همان الگو کار کن و دوباره بسنج."]) {
+    await expect(path.getByRole("heading", { name: title, exact: true })).toBeVisible();
   }
 
-  await expect(exclusive.locator("audio, video")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "درخواست عضویت" }).first()).toHaveAttribute("href", "/join");
 });
 
-test("keeps the new story free of horizontal overflow on mobile", async ({ page }) => {
+test("shows Persian archetype titles before the English subtitle and tagline", async ({ page }) => {
+  await page.goto("/");
+
+  const expected = {
+    architect: ["معمار", "THE ARCHITECT", "قبل از هر تصمیم، سیستم می‌سازد."],
+    oracle: ["بینش‌گر", "THE VISIONARY", "پشت نشانه‌ها، الگو را می‌بیند."],
+    alchemist: ["تبدیل‌گر", "THE ALCHEMIST", "تجربه را به مسیر تازه تبدیل می‌کند."],
+    phantom: ["ناظر", "THE OBSERVER", "قبل از واکنش، فاصله می‌گیرد و نگاه می‌کند."],
+    sovereign: ["فرمانروا", "THE SOVEREIGN", "حتی زیر فشار، قانونش را تغییر نمی‌دهد."],
+  } as const;
+
+  for (const [axisId, [persianName, englishName, tagline]] of Object.entries(expected)) {
+    const card = page.locator(`[data-archetype-id="${axisId}"]`);
+    const copy = card.locator("[data-archetype-copy]");
+    await expect(card.getByRole("heading", { name: persianName, exact: true })).toBeVisible();
+    await expect(card.getByText(englishName, { exact: true })).toBeVisible();
+    await expect(card.getByText(tagline, { exact: true })).toBeVisible();
+    await expect(copy.locator(":scope > *")).toHaveText([persianName, englishName, tagline]);
+  }
+});
+
+test("keeps the landing page free of horizontal overflow on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-  await page.locator("#exclusive-content").scrollIntoViewIfNeeded();
+  await page.locator("#archetypes").scrollIntoViewIfNeeded();
 
   const sizes = await page.evaluate(() => ({
     viewport: document.documentElement.clientWidth,

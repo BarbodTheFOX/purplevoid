@@ -1,3 +1,5 @@
+import { AXES } from "../../test/data/axes";
+
 export type ContentPillar = {
   id: "pattern" | "observe" | "practice" | "review";
   number: string;
@@ -47,11 +49,11 @@ export const CONTENT_PILLARS: readonly ContentPillar[] = [
 ] as const;
 
 export const PERSONALIZED_PATHS = [
-  { archetype: "ORACLE", title: "تحلیلگر شواهد", preview: "تشخیص مرز میان تحلیل بیشتر و عقب‌انداختن تصمیم." },
-  { archetype: "ARCHITECT", title: "معمار فرایند", preview: "دیدن لحظه‌ای که پایبندی به ساختار به انعطاف‌ناپذیری تبدیل می‌شود." },
-  { archetype: "ALCHEMIST", title: "یادگیرنده منعطف", preview: "فرق‌گذاشتن میان یادگیری واقعی و تغییر مداوم روش." },
-  { archetype: "PHANTOM", title: "ناظر هیجان", preview: "ایجاد فاصله بعد از ضرر، بدون کناره‌گیری از تصمیم." },
-  { archetype: "SOVEREIGN", title: "فرمانروای ریسک", preview: "حفظ قانون ریسک، مخصوصاً وقتی اعتمادبه‌نفس بالا می‌رود." },
+  { archetype: AXES.oracle.englishName, title: AXES.oracle.persianName, preview: AXES.oracle.tagline },
+  { archetype: AXES.architect.englishName, title: AXES.architect.persianName, preview: AXES.architect.tagline },
+  { archetype: AXES.alchemist.englishName, title: AXES.alchemist.persianName, preview: AXES.alchemist.tagline },
+  { archetype: AXES.phantom.englishName, title: AXES.phantom.persianName, preview: AXES.phantom.tagline },
+  { archetype: AXES.sovereign.englishName, title: AXES.sovereign.persianName, preview: AXES.sovereign.tagline },
 ] as const;
 
 export const DELIVERY_NOTES = [

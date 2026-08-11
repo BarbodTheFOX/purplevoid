@@ -8,6 +8,7 @@ import {
   membershipPriceLabel,
 } from "@/config/membership";
 import { readResult } from "@/features/test/lib/storage";
+import { AXES } from "@/features/test/data/axes";
 import type { MembershipStatus } from "../types";
 import {
   buildAdminPaymentMessage,
@@ -49,11 +50,11 @@ const EXPERIENCE_LABELS: Record<string, string> = {
 };
 
 const ARCHETYPE_LABELS: Record<string, string> = {
-  architect: "ARCHITECT — معمار فرایند",
-  oracle: "ORACLE — تحلیلگر شواهد",
-  alchemist: "ALCHEMIST — یادگیرنده منعطف",
-  phantom: "PHANTOM — ناظر هیجان",
-  sovereign: "SOVEREIGN — فرمانروای ریسک",
+  architect: `${AXES.architect.persianName} — ${AXES.architect.englishName}`,
+  oracle: `${AXES.oracle.persianName} — ${AXES.oracle.englishName}`,
+  alchemist: `${AXES.alchemist.persianName} — ${AXES.alchemist.englishName}`,
+  phantom: `${AXES.phantom.persianName} — ${AXES.phantom.englishName}`,
+  sovereign: `${AXES.sovereign.persianName} — ${AXES.sovereign.englishName}`,
   balanced: "پروفایل متعادل",
   blended: "پروفایل ترکیبی",
   unknown: "هنوز تست را انجام نداده‌ام",
@@ -128,7 +129,7 @@ export function MembershipFlow() {
   const adminMessage = useMemo(() => buildAdminPaymentMessage({
     displayName: application.displayName,
     telegramUsername: application.telegramUsername,
-    archetype: application.archetype === "unknown" ? undefined : application.archetype,
+    archetype: application.archetype === "unknown" ? undefined : ARCHETYPE_LABELS[application.archetype],
     expectedAmountLabel: priceLabel,
     currency: MEMBERSHIP_CONFIG.currency,
     network: MEMBERSHIP_CONFIG.network,

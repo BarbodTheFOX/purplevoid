@@ -29,14 +29,14 @@ export async function generateMetadata(): Promise<Metadata> {
       description:
         "مهارت‌های رفتاری اخیرت در فرایند، شواهد، یادگیری، هیجان و ریسک را مشاهده کن.",
       siteName: "Purple VOID",
-      images: [{ url: "/og.png", width: 1732, height: 910, alt: "Purple VOID PV–BPI" }],
+      images: [{ url: "/og-minimal.png", width: 1731, height: 909, alt: "Purple VOID — فاصله بین پلن و رفتارت را ببین" }],
     },
     twitter: {
       card: "summary_large_image",
       title: "Purple VOID | پروفایل رفتاری معامله‌گر",
       description:
         "مهارت‌های رفتاری اخیرت در فرایند، شواهد، یادگیری، هیجان و ریسک را مشاهده کن.",
-      images: ["/og.png"],
+      images: ["/og-minimal.png"],
     },
     robots: allowIndexing
       ? { index: true, follow: true }

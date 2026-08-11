@@ -1,16 +1,7 @@
 import Image from "next/image";
 import { AXES, AXIS_IDS } from "@/features/test/data/axes";
-import { ExclusiveContentStory } from "@/features/landing/components/exclusive-content-story";
 import { LandingMotion } from "./landing-motion";
 import styles from "./landing.module.css";
-
-const archetypeNotes = {
-  architect: "وقتی ساختار، تصمیم را نگه می‌دارد.",
-  oracle: "وقتی شواهد از داستان ذهنی جدا می‌شود.",
-  alchemist: "وقتی تجربه به تغییر حساب‌شده تبدیل می‌شود.",
-  phantom: "وقتی بین هیجان و واکنش، فاصله می‌افتد.",
-  sovereign: "وقتی قانون ریسک، حتی زیر فشار پابرجا می‌ماند.",
-} as const;
 
 export default function HomePage() {
   return (
@@ -23,8 +14,6 @@ export default function HomePage() {
           <div className={styles.heroGrid}>
             <div className={styles.heroCopy} data-reveal>
               <div className={styles.brandLine}>
-                <span>تجربه رفتاری معامله‌گر</span>
-                <i />
                 <span>محصولی از ایونتوم اسپیس</span>
               </div>
               <h1 id="hero-title">
@@ -32,14 +21,14 @@ export default function HomePage() {
                 <span>رفتارت را ببین.</span>
               </h1>
               <p className={styles.heroLead}>
-                ممکن است پلن مشخصی داشته باشی، اما بعد از ضرر، هنگام FOMO یا وقتی اعتمادبه‌نفست بالا می‌رود همان پلن را کنار بگذاری. Purple VOID کمک می‌کند این فاصله را ببینی، ثبت کنی و روی آن کار کنی.
+                یک تست ۳۵ سؤالی برای دیدن الگوهایی که زیر فشار، پلن معاملاتی‌ات را تغییر می‌دهند.
               </p>
               <div className={styles.heroActions}>
                 <a className={styles.primaryButton} href="/test" data-testid="start-test">
                   <span>شروع تست آرکیتایپ</span>
                   <b aria-hidden="true">←</b>
                 </a>
-                <a className={styles.ghostButton} href="#exclusive-content">مشاهده مسیر Purple VOID</a>
+                <a className={styles.ghostButton} href="/join">درخواست عضویت</a>
               </div>
               <div className={styles.heroFacts} aria-label="مشخصات تست">
                 <span><strong>۳۵</strong> پرسش</span>
@@ -74,54 +63,33 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-        <a className={styles.scrollCue} href="#problem" aria-label="رفتن به بخش بعد">
+        <a className={styles.scrollCue} href="#how-it-works" aria-label="رفتن به بخش بعد">
           <span>پایین برو</span><i aria-hidden="true" />
         </a>
       </section>
 
-      <section className={styles.problem} id="problem">
-        <div className={styles.shell}>
-          <div className={styles.problemIntro} data-reveal>
-            <span className={styles.sectionIndex}>۰۱ — مسئله اصلی</span>
-            <h2>اطلاعات بیشتر، همیشه تصمیم بهتر نمی‌سازد.</h2>
-            <p>بعضی اشتباه‌ها از ندانستن نمی‌آیند. مشکل از لحظه‌ای شروع می‌شود که فشار بالا می‌رود و واکنش، جای تصمیم از قبل تعیین‌شده را می‌گیرد.</p>
-          </div>
-          <div className={styles.behaviorStream} data-reveal>
-            <div><span>بعد از ضرر</span><strong>برای جبران، سریع وارد معامله بعدی می‌شوی.</strong></div>
-            <div><span>بعد از سود</span><strong>فکر می‌کنی این بار می‌توانی قانون ریسک را کمی جابه‌جا کنی.</strong></div>
-            <div><span>وسط تصمیم</span><strong>برای چیزی که از قبل می‌دانی، باز هم دنبال تأیید می‌گردی.</strong></div>
-          </div>
-        </div>
-      </section>
-
-      <section className={styles.whatIs} id="what-is-void">
+      <section className={styles.whatIs} id="how-it-works">
         <div className={styles.shell}>
           <div className={styles.whatGrid}>
             <div className={styles.stickyStatement} data-reveal>
-              <span className={styles.sectionIndex}>۰۲ — Purple VOID چیست؟</span>
-              <h2>یک کانال ویژه معمولی نیست.</h2>
+              <span className={styles.sectionIndex}>۰۱ — مسیر Purple VOID</span>
+              <h2>از شناخت تا تغییر، در سه قدم.</h2>
               <p>
-                Purple VOID فضای عضویت و تمرین رفتاری برای تریدرهاست. تست نقطه شروع است؛ بعد از آن، الگو را در تصمیم‌های واقعی مشاهده می‌کنی و برای بخش‌هایی که تکرار می‌شوند تمرین مشخص داری.
+                تست، نقطه شروع است. بعد الگوی رفتاری‌ات را در معامله‌های واقعی مشاهده و تمرین می‌کنی.
               </p>
-              <div className={styles.eventumSignature}>
-                <Image src="/brand/eventum-wordmark-purple.png" alt="EVENTUM SPACE" width={688} height={112} />
-              </div>
             </div>
             <div className={styles.definitionRail}>
               <article className={styles.definitionActive} data-reveal>
-                <span>مشاهده</span>
-                <h3>ببینی زیر فشار کدام الگو را تکرار می‌کنی.</h3>
-                <p>نه رفتاری که فکر می‌کنی داری؛ رفتاری که در ورود، خروج، تغییر پلن و واکنش به سود و ضرر دیده می‌شود.</p>
+                <span>۱ · تست</span>
+                <h3>خط پایه رفتاری‌ات را بساز.</h3>
               </article>
               <article data-reveal>
-                <span>تمرین</span>
-                <h3>برای مسئله فعلی‌ات، تمرین قابل انجام داشته باشی.</h3>
-                <p>ثبت احساس، نوشتن دلیل ورود، فاصله بعد از ضرر و مرور تصمیم‌هایی که خارج از پلن گرفته شده‌اند.</p>
+                <span>۲ · مشاهده</span>
+                <h3>الگوی تکرارشونده را در معامله‌ها ببین.</h3>
               </article>
               <article data-reveal>
-                <span>مقایسه</span>
-                <h3>بعد از مدتی، تغییر را فقط حدس نزنی؛ بررسی کنی.</h3>
-                <p>نتیجه اولیه، یادداشت‌های رفتاری و بازآزمایی کمک می‌کنند رفتار امروزت را با خط پایه خودت مقایسه کنی.</p>
+                <span>۳ · تمرین</span>
+                <h3>روی همان الگو کار کن و دوباره بسنج.</h3>
               </article>
             </div>
           </div>
@@ -132,73 +100,39 @@ export default function HomePage() {
         <div className={styles.shell}>
           <div className={styles.sectionHeading} data-reveal>
             <div>
-              <span className={styles.sectionIndex}>۰۳ — پنج مسیر رفتاری</span>
-              <h2>آرکیتایپ، برچسب تو نیست.</h2>
+              <span className={styles.sectionIndex}>۰۲ — پنج محور رفتاری</span>
+              <h2>پنج الگو؛ یک تصویر از رفتار فعلی.</h2>
             </div>
-            <p>فقط نشان می‌دهد در رفتار معاملاتی اخیرت کدام الگو پررنگ‌تر بوده و کدام بخش به مشاهده و تمرین بیشتری نیاز دارد.</p>
+            <p>نتیجه، برچسب شخصیتی نیست؛ نشان می‌دهد الان کدام مهارت‌ها فعال‌ترند.</p>
           </div>
           <div className={styles.archetypeField} data-reveal>
             <div className={styles.archetypeCore} aria-hidden="true"><span>الگوی فعلی</span><b>تو</b></div>
             {AXIS_IDS.map((axisId, index) => (
-              <article className={styles.archetypeRow} key={axisId}>
+              <article className={styles.archetypeRow} data-archetype-id={axisId} key={axisId}>
                 <span className={styles.archetypeNumber}>۰{index + 1}</span>
-                <div>
-                  <strong dir="ltr">{AXES[axisId].englishName}</strong>
-                  <span>{AXES[axisId].persianName}</span>
+                <div className={styles.archetypeName} data-archetype-copy>
+                  <h3>{AXES[axisId].persianName}</h3>
+                  <span dir="ltr">{AXES[axisId].englishName}</span>
+                  <p>{AXES[axisId].tagline}</p>
                 </div>
-                <p>{archetypeNotes[axisId]}</p>
                 <i aria-hidden="true" />
               </article>
             ))}
           </div>
-          <p className={styles.archetypeNote} data-reveal>نتیجه تست می‌تونه متعادل، ترکیبی، دارای نیروی پشتیبان یا یک الگوی غالب باشه.</p>
         </div>
       </section>
-
-      <section className={styles.testPreview} id="test-entry">
-        <div className={styles.shell}>
-          <div className={styles.testGlass} data-reveal>
-            <div className={styles.testCopy}>
-              <span className={styles.sectionIndex}>۰۴ — نقطه ورود</span>
-              <h2>اول یک خط پایه از رفتار فعلی‌ات داشته باش.</h2>
-              <p>۳۵ پرسش درباره تصمیم‌هایی که واقعاً در بازار می‌گیری؛ بدون جواب درست و غلط و بدون ساختن یک برچسب شخصیتی ثابت.</p>
-              <ul>
-                <li>پاسخ‌ها فقط روی همین مرورگر ذخیره می‌شوند</li>
-                <li>می‌توانی بین سؤال‌ها عقب و جلو بروی</li>
-                <li>نتیجه براساس پنج محور و سطح اطمینان محاسبه می‌شود</li>
-              </ul>
-              <a className={styles.primaryButton} href="/test">
-                <span>تست را شروع می‌کنم</span><b aria-hidden="true">←</b>
-              </a>
-            </div>
-            <div className={styles.questionMock} aria-label="پیش‌نمایش محیط تست">
-              <div className={styles.mockTop}><span>سؤال ۱۹ از ۳۵</span><b>۵۴٪</b></div>
-              <div className={styles.mockTrack}><i /></div>
-              <p>بعد از یک ضرر احساسی، سریع دنبال معامله بعدی می‌گردی تا حس بدش را از بین ببری؟</p>
-              <div className={styles.mockOptions}>
-                {["اصلاً", "به ندرت", "بعضی وقت‌ها", "بیشتر وقت‌ها", "تقریباً همیشه"].map((option, index) => (
-                  <span className={index === 2 ? styles.mockSelected : ""} key={option}><i />{option}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <ExclusiveContentStory />
 
       <section className={styles.boundaries} id="boundaries">
         <div className={styles.shell}>
           <div className={styles.boundaryGlass} data-reveal>
             <div>
-              <span className={styles.sectionIndex}>۰۶ — مرزهای روشن</span>
-              <h2>قبل از درخواست عضویت، این مرزها را بدان.</h2>
+              <span className={styles.sectionIndex}>۰۳ — مرزهای روشن</span>
+              <h2>شفاف و بدون وعده اضافه.</h2>
             </div>
             <ul>
-              <li><strong>سیگنال نیست.</strong><span>هیچ معامله‌ای به تو پیشنهاد نمی‌شود.</span></li>
-              <li><strong>تضمین سود نیست.</strong><span>مسئولیت تصمیم‌های معاملاتی با خودت است.</span></li>
-              <li><strong>تشخیص نیست.</strong><span>آرکیتایپ‌ها تشخیص روان‌شناختی یا بالینی نیستند.</span></li>
-              <li><strong>جایگزین درمان نیست.</strong><span>محتوا و تعامل‌ها، روان‌درمانی یا مشاوره فردی تضمین‌شده نیستند.</span></li>
+              <li><strong>سیگنال نیست.</strong><span>معامله‌ای پیشنهاد نمی‌کند.</span></li>
+              <li><strong>تضمین سود نیست.</strong><span>تصمیم نهایی با خودت است.</span></li>
+              <li><strong>تشخیص روان‌شناختی نیست.</strong><span>یک ابزار آموزشی و خودبازتابی است.</span></li>
             </ul>
           </div>
         </div>
@@ -208,15 +142,14 @@ export default function HomePage() {
         <div className={styles.finalGlow} aria-hidden="true" />
         <div className={styles.shell}>
           <div className={styles.finalInner} data-reveal>
-            <Image src="/brand/eventum-symbol-purple.png" alt="" width={536} height={640} aria-hidden="true" />
-            <span>مسیر روشن است: تست، مشاهده، تمرین، مرور.</span>
-            <h2>می‌خواهی اول الگوی فعلی‌ات را ببینی یا درخواست عضویتت را ثبت کنی؟</h2>
-            <p>اگر هنوز تست را انجام نداده‌ای، از همان‌جا شروع کن. اگر نتیجه‌ات را داری، فرم عضویت را تکمیل کن و قبل از هر پرداخت، اطلاعات را یک‌بار دیگر مرور کن.</p>
+            <span>قدم بعدی</span>
+            <h2>الگوی رفتاری‌ات را ببین.</h2>
+            <p>۳۵ سؤال، حدود ۱۰ دقیقه، با نتیجه‌ای که فقط روی مرورگر خودت ذخیره می‌شود.</p>
             <div className={styles.heroActions}>
               <a className={styles.primaryButton} href="/test"><span>انجام تست</span><b aria-hidden="true">←</b></a>
               <a className={styles.ghostButton} href="/join"><span>درخواست عضویت</span></a>
             </div>
-            <small>این تست ابزار آموزشی و خودبازتابی است؛ نه توصیه مالی و نه ارزیابی روان‌شناختی.</small>
+            <small>ابزار آموزشی است؛ نه توصیه مالی.</small>
           </div>
         </div>
       </section>

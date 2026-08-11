@@ -8,9 +8,8 @@ export function SiteHeader() {
       <div className="shell header-inner">
         <BrandMark />
         <nav aria-label="ناوبری اصلی" className="header-nav">
-          <Link href="/#what-is-void">Purple VOID چیست؟</Link>
+          <Link href="/#how-it-works">روش کار</Link>
           <Link href="/#archetypes">آرکیتایپ‌ها</Link>
-          <Link href="/#exclusive-content">تجربه عضویت</Link>
           <a href="/join">درخواست عضویت</a>
           <ThemeToggle />
           <a className="button button-small button-ghost" href="/test">شروع تست</a>

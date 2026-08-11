@@ -18,8 +18,9 @@ export default function MethodologyPage() {
         <div className="content-stack">
           {AXIS_IDS.map((axisId) => (
             <article className="content-card" key={axisId}>
-              <p className="eyebrow">{AXES[axisId].englishName}</p>
               <h2>{AXES[axisId].persianName}</h2>
+              <p className="eyebrow">{AXES[axisId].englishName}</p>
+              <p>{AXES[axisId].tagline}</p>
               <p>{AXES[axisId].competency}؛ مهارتی قابل تمرین که از پاسخ به شش موقعیت رفتاری و یک سناریو مشاهده می‌شود.</p>
             </article>
           ))}

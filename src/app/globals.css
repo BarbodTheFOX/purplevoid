@@ -951,8 +951,9 @@ html[data-theme="light"] .theme-toggle-thumb {
 .featured-archetypes strong,
 .featured-archetypes span { display: block; }
 .featured-archetypes small { color: var(--muted); font-size: 0.72rem; }
-.featured-archetypes strong { margin-top: 4px; color: var(--primary-bright); font-size: 1rem; letter-spacing: 0.05em; }
-.featured-archetypes span { color: var(--text-soft); font-size: 0.84rem; }
+.featured-archetypes strong { margin-top: 5px; color: var(--text); font-size: 1.25rem; line-height: 1.35; }
+.featured-archetypes span { margin-top: 2px; color: var(--primary-bright); font-size: 0.7rem; font-weight: 850; letter-spacing: 0.06em; }
+.featured-archetypes p { margin: 9px 0 0; color: var(--text-soft); font-size: 0.8rem; line-height: 1.75; }
 
 .radar-figure { min-width: 0; margin: 0; direction: ltr; }
 .radar-svg { display: block; width: 100%; height: auto; overflow: visible; }
@@ -986,10 +987,9 @@ html[data-theme="light"] .theme-toggle-thumb {
 .axis-rank { color: var(--muted); direction: ltr; font-size: 0.72rem; }
 .axis-result-main { min-width: 0; }
 .axis-result-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
-.axis-result-heading > div:first-child strong,
-.axis-result-heading > div:first-child span { display: block; }
-.axis-result-heading > div:first-child strong { color: var(--primary-bright); font-size: 0.87rem; letter-spacing: 0.05em; }
-.axis-result-heading > div:first-child span { color: var(--text-soft); font-size: 0.82rem; }
+.axis-archetype-heading h3 { margin: 0; color: var(--text); font-size: 1.08rem; line-height: 1.35; }
+.axis-archetype-heading > span { display: block; margin-top: 2px; color: var(--primary-bright); font-size: 0.67rem; font-weight: 850; letter-spacing: 0.05em; }
+.axis-archetype-heading > p { margin: 5px 0 0; color: var(--text-soft); font-size: 0.76rem; line-height: 1.65; }
 .axis-score-number { display: flex; align-items: baseline; gap: 6px; }
 .axis-score-number strong { font-size: 1.4rem; }
 .axis-score-number span { color: var(--muted); font-size: 0.7rem; }
@@ -1005,9 +1005,9 @@ html[data-theme="light"] .theme-toggle-thumb {
 .growth-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .interpretation-card,
 .growth-card { border: 1px solid var(--border); border-radius: 18px; padding: 22px; background: rgba(8, 7, 15, 0.38); }
-.interpretation-card > span { color: var(--primary-bright); font-size: 0.76rem; font-weight: 850; letter-spacing: 0.07em; }
+.interpretation-card > span { display: block; color: var(--primary-bright); font-size: 0.7rem; font-weight: 850; letter-spacing: 0.07em; }
 .interpretation-card h3,
-.growth-card h3 { margin: 4px 0 10px; font-size: 1.2rem; }
+.growth-card h3 { margin: 0 0 3px; font-size: 1.2rem; }
 .interpretation-card p,
 .growth-card p { margin: 0; color: var(--text-soft); font-size: 0.88rem; }
 .interpretation-card > div { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px; }
@@ -1016,6 +1016,8 @@ html[data-theme="light"] .theme-toggle-thumb {
 .growth-card { display: grid; grid-template-columns: 42px 1fr; gap: 16px; }
 .growth-index { color: var(--primary-bright); direction: ltr; font-size: 0.74rem; font-weight: 850; }
 .growth-card strong { color: var(--primary-bright); font-size: 0.76rem; letter-spacing: 0.06em; }
+.interpretation-card .archetype-tagline,
+.growth-card .archetype-tagline { margin: 8px 0 14px; color: var(--text); font-size: 0.82rem; line-height: 1.75; }
 
 .shadow-section { display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 24px; border-color: rgba(227, 152, 169, 0.25); background: linear-gradient(145deg, rgba(60, 29, 48, 0.36), rgba(14, 10, 20, 0.94)); }
 .shadow-symbol { display: grid; width: 80px; height: 80px; place-items: center; border: 1px solid rgba(227, 152, 169, 0.3); border-radius: 50%; color: var(--danger); font-size: 2.2rem; }
@@ -1035,6 +1037,13 @@ html[data-theme="light"] .theme-toggle-thumb {
 
 html[data-theme="light"] .button-ghost { background: rgba(255, 255, 255, 0.58); }
 html[data-theme="light"] .section-soft { background: rgba(255, 255, 255, 0.34); border-color: rgba(80, 56, 91, 0.1); }
+html[data-theme="light"] .result-hero,
+html[data-theme="light"] .result-section,
+html[data-theme="light"] .result-limitation {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.84), rgba(239, 234, 242, 0.92));
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.96), 0 22px 60px rgba(58, 36, 68, 0.08);
+}
+html[data-theme="light"] .featured-archetypes > div { background: rgba(255, 255, 255, 0.66); }
 html[data-theme="light"] .dimension-card,
 html[data-theme="light"] .trust-card,
 html[data-theme="light"] .content-card,

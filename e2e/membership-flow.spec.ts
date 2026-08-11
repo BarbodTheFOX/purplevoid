@@ -1,20 +1,10 @@
 import { expect, test } from "@playwright/test";
 
-test("presents an honest membership path without fake media previews", async ({ page }) => {
+test("presents a concise and honest membership path", async ({ page }) => {
   await page.goto("/");
 
-  const exclusive = page.locator("#exclusive-content");
-  for (const title of [
-    "الگوی خودت را بشناس",
-    "رفتارت را مشاهده کن",
-    "روی الگوی خودت کار کن",
-    "تغییراتت را بررسی کن",
-  ]) {
-    await expect(exclusive.getByRole("heading", { name: title, exact: true })).toBeVisible();
-  }
-
-  await expect(exclusive.getByText(/پیش‌نمایش رابط|فایل صوتی واقعی بعداً|پیش‌نمایش ویدیو/)).toHaveCount(0);
-  await expect(exclusive.locator("audio, video")).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "از شناخت تا تغییر، در سه قدم." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "شفاف و بدون وعده اضافه." })).toBeVisible();
   await expect(page.getByRole("link", { name: "درخواست عضویت" }).first()).toHaveAttribute("href", "/join");
 });
 

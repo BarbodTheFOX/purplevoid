@@ -83,6 +83,7 @@ export interface AxisConfiguration {
   readonly id: AxisId;
   readonly englishName: string;
   readonly persianName: string;
+  readonly tagline: string;
   readonly competency: string;
   readonly directItems: readonly LikertQuestionId[];
   readonly reverseItems: readonly LikertQuestionId[];

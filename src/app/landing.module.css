@@ -83,7 +83,7 @@
 .scrollCue { position: absolute; z-index: 3; bottom: 24px; left: 50%; transform: translateX(-50%); color: #766e7e; font-size: .68rem; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .scrollCue i { width: 1px; height: 28px; background: linear-gradient(var(--pv-violet-soft), transparent); animation: scrollPulse 1.8s ease-in-out infinite; }
 
-.problem, .whatIs, .archetypes, .testPreview, .inside, .boundaries { position: relative; padding: 124px 0; }
+.problem, .whatIs, .archetypes, .testPreview, .inside, .boundaries { position: relative; padding: 96px 0; }
 .problem { background: linear-gradient(180deg, #07060b, #0a0710); }
 .problemIntro { display: grid; grid-template-columns: .7fr 1.55fr; column-gap: 70px; align-items: start; }
 .sectionIndex { color: #9f8fab; font-size: .74rem; }
@@ -104,25 +104,25 @@
 .eventumSignature { width: 190px; margin-top: 46px; opacity: .75; }
 .eventumSignature img { width: 100%; height: auto; }
 .definitionRail { border-inline-start: 1px solid var(--pv-line); }
-.definitionRail article { position: relative; min-height: 270px; padding: 30px 50px 50px 0; border-bottom: 1px solid var(--pv-line); }
+.definitionRail article { position: relative; min-height: 150px; padding: 30px 50px 34px 0; border-bottom: 1px solid var(--pv-line); }
 .definitionRail article::before { content: ""; position: absolute; width: 7px; height: 7px; border-radius: 50%; top: 35px; inset-inline-start: -4px; background: #403747; transition: box-shadow 260ms ease, background 260ms ease; }
 .definitionRail article:hover::before, .definitionActive::before { background: #c687ff !important; box-shadow: 0 0 22px #9200ff; }
 .definitionRail article > span { color: #ad71de; font-size: .72rem; }
 .definitionRail h3 { margin: 22px 0 0; font-size: clamp(1.45rem, 2.2vw, 2rem); line-height: 1.55; }
 .definitionRail p { margin: 18px 0 0; color: var(--pv-muted); line-height: 1.9; }
 
-.archetypes { background: #07060b; }
+.archetypes { background: #08070c; scroll-margin-top: 88px; }
 .sectionHeading { display: grid; grid-template-columns: 1.35fr .65fr; gap: 60px; align-items: end; margin-bottom: 64px; }
 .sectionHeading h2 { margin-top: 18px; }
 .sectionHeading > p { margin: 0; color: var(--pv-muted); line-height: 1.95; }
 .archetypeField { position: relative; border-top: 1px solid var(--pv-line); }
-.archetypeRow { min-height: 112px; display: grid; grid-template-columns: 70px 260px 1fr 60px; align-items: center; gap: 25px; border-bottom: 1px solid var(--pv-line); position: relative; transition: padding 240ms ease, background 240ms ease; }
+.archetypeRow { min-height: 112px; display: grid; grid-template-columns: 70px minmax(0, 1fr) 60px; align-items: center; gap: 25px; border-bottom: 1px solid var(--pv-line); position: relative; transition: padding 240ms ease, background 240ms ease; }
 .archetypeRow:hover { padding-inline: 22px; background: linear-gradient(90deg, rgba(166,76,235,.08), transparent); }
 .archetypeNumber { color: #6e6674; font-size: .72rem; }
-.archetypeRow > div { display: flex; flex-direction: column; }
-.archetypeRow strong { color: #bd76f5; font-size: 1rem; letter-spacing: .08em; }
-.archetypeRow div span { color: #eee6f2; font-size: .84rem; }
-.archetypeRow p { color: #aaa0b2; margin: 0; }
+.archetypeRow > .archetypeName { display: flex; min-width: 0; max-width: 560px; flex-direction: column; align-items: flex-start; gap: 3px; }
+.archetypeRow .archetypeName h3 { margin: 0; color: #eee6f2; font-size: 1.4rem; line-height: 1.25; letter-spacing: -.02em; }
+.archetypeRow .archetypeName span { color: #bd76f5; font-size: .68rem; font-weight: 800; letter-spacing: .07em; white-space: nowrap; }
+.archetypeRow .archetypeName p { margin: 8px 0 0; color: #aaa0b2; line-height: 1.75; }
 .archetypeRow > i { width: 8px; height: 8px; border: 1px solid #a94cec; border-radius: 50%; justify-self: end; box-shadow: 0 0 0 6px rgba(163,64,234,.06); }
 .archetypeCore { position: absolute; width: 170px; height: 170px; display: none; place-items: center; border-radius: 50%; border: 1px solid var(--pv-line); background: var(--pv-glass); backdrop-filter: blur(20px); }
 .archetypeNote { margin: 28px 0 0; color: #766d7c; font-size: .75rem; }
@@ -162,15 +162,15 @@
 .questPanel > p { margin: 0; color: #afa5b5; line-height: 1.9; }
 
 .boundaries { background: linear-gradient(180deg, #07060b, #0b0810); }
-.boundaryGlass { padding: 66px; display: grid; grid-template-columns: .8fr 1.2fr; gap: 80px; }
+.boundaryGlass { padding: 48px; display: grid; grid-template-columns: .8fr 1.2fr; gap: 64px; }
 .boundaryGlass h2 { margin-top: 20px; font-size: clamp(2rem, 3.8vw, 3.4rem); }
 .boundaryGlass ul { position: relative; z-index: 2; margin: 0; padding: 0; list-style: none; }
-.boundaryGlass li { min-height: 82px; display: grid; grid-template-columns: 160px 1fr; align-items: center; gap: 20px; border-bottom: 1px solid var(--pv-line); }
+.boundaryGlass li { min-height: 68px; display: grid; grid-template-columns: 190px 1fr; align-items: center; gap: 20px; border-bottom: 1px solid var(--pv-line); }
 .boundaryGlass li:last-child { border-bottom: 0; }
 .boundaryGlass strong { color: #e7d9ef; }
 .boundaryGlass li span { color: var(--pv-muted); font-size: .85rem; }
 
-.finalCta { min-height: 760px; position: relative; display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 50% 50%, rgba(125,0,210,.21), transparent 34%), #07060b; }
+.finalCta { min-height: 540px; position: relative; display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 50% 50%, rgba(125,0,210,.21), transparent 34%), #07060b; }
 .finalGlow { position: absolute; width: 560px; height: 560px; border: 1px solid rgba(206,155,242,.1); border-radius: 50%; box-shadow: 0 0 0 80px rgba(207,151,243,.018), 0 0 0 160px rgba(207,151,243,.012); }
 .finalInner { max-width: 790px; margin: 0 auto; text-align: center; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 2; }
 .finalInner > img { width: 68px; height: auto; margin-bottom: 24px; filter: drop-shadow(0 0 28px rgba(163,50,242,.3)); }
@@ -214,14 +214,14 @@
   .logoGlass img { width: 128px; }
   .orbitOne { width: 400px; }.orbitTwo { width: 310px; }
   .axisChip { min-width: 62px; font-size: .66rem; }
-  .problem, .whatIs, .archetypes, .testPreview, .inside, .boundaries { padding: 88px 0; }
+  .problem, .whatIs, .archetypes, .testPreview, .inside, .boundaries { padding: 72px 0; }
   .problemIntro h2, .sectionHeading h2, .stickyStatement h2, .testCopy h2, .boundaryGlass h2, .finalInner h2 { font-size: clamp(2rem, 10vw, 3rem); }
   .behaviorStream { margin-top: 48px; }
   .behaviorStream div { grid-template-columns: 1fr; gap: 8px; min-height: 132px; padding: 24px 0; }
-  .definitionRail article { padding: 26px 28px 40px 0; min-height: 230px; }
+  .definitionRail article { padding: 24px 28px 30px 0; min-height: 140px; }
   .sectionHeading { gap: 20px; margin-bottom: 44px; }
   .archetypeRow { grid-template-columns: 38px 1fr 16px; gap: 14px; padding: 22px 0; }
-  .archetypeRow p { grid-column: 2 / -1; font-size: .82rem; }
+  .archetypeRow .archetypeName p { font-size: .82rem; }
   .archetypeRow > i { grid-column: 3; grid-row: 1; }
   .testGlass, .boundaryGlass { border-radius: 28px; padding: 28px 20px; gap: 44px; }
   .questionMock { padding: 22px 16px; }
@@ -229,7 +229,7 @@
   .journeySpine { left: auto; right: 23px; }
   .questPanel { padding: 28px 22px; }
   .boundaryGlass li { grid-template-columns: 1fr; gap: 5px; padding: 18px 0; }
-  .finalCta { min-height: 680px; padding: 70px 0; }
+  .finalCta { min-height: 520px; padding: 64px 0; }
   .finalGlow { width: 320px; height: 320px; }
 }
 
@@ -278,7 +278,7 @@
 :global(html[data-theme="light"]) .boundaries { background: linear-gradient(180deg, #f7f5f8, #eae7ec); }
 :global(html[data-theme="light"]) .finalCta { background: radial-gradient(circle at 50% 50%, rgba(142, 45, 188, .12), transparent 34%), #efedf1; }
 :global(html[data-theme="light"]) .behaviorStream strong,
-:global(html[data-theme="light"]) .archetypeRow div span,
+:global(html[data-theme="light"]) .archetypeRow .archetypeName span,
 :global(html[data-theme="light"]) .questionMock > p,
 :global(html[data-theme="light"]) .boundaryGlass strong { color: #322838; }
 :global(html[data-theme="light"]) .behaviorStream div:hover,
@@ -286,7 +286,8 @@
 :global(html[data-theme="light"]) .eventumSignature { opacity: .9; }
 :global(html[data-theme="light"]) .definitionRail article::before { background: #b1a8b5; }
 :global(html[data-theme="light"]) .definitionRail h3 { color: #2d2433; }
-:global(html[data-theme="light"]) .archetypeRow strong { color: #7f299f; }
+:global(html[data-theme="light"]) .archetypeRow .archetypeName h3 { color: #322838; }
+:global(html[data-theme="light"]) .archetypeRow .archetypeName span { color: #7f299f; }
 :global(html[data-theme="light"]) .archetypeRow p { color: #625968; }
 :global(html[data-theme="light"]) .testGlass,
 :global(html[data-theme="light"]) .boundaryGlass { border-color: rgba(78,53,90,.15); background: linear-gradient(135deg, rgba(255,255,255,.7), rgba(255,255,255,.34) 42%, rgba(149,74,184,.07)); box-shadow: inset 0 1px rgba(255,255,255,.96), 0 32px 72px rgba(58,36,68,.1); }
