@@ -13,11 +13,12 @@
     "dev:next": "next dev",
     "build:next": "next build",
     "start:next": "next start",
-    "lint": "eslint src e2e e2e-production worker build vite.config.ts playwright.config.ts playwright.production.config.ts",
+    "lint": "eslint src e2e e2e-membership e2e-production worker build vite.config.ts playwright.config.ts playwright.membership.config.ts playwright.production.config.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:membership": "playwright test --config=playwright.membership.config.ts",
     "test:e2e:production": "playwright test --config=playwright.production.config.ts"
   },
   "dependencies": {

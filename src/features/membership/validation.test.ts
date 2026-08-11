@@ -1,108 +1,158 @@
 import { describe, expect, it } from "vitest";
-import { MEMBERSHIP_CONFIG, isMembershipPaymentReady } from "../../config/membership";
 import {
-  buildAdminPaymentMessage,
-  membershipApplicationSchema,
-  normalizeTelegramUsername,
-  paymentEvidenceSchema,
-} from "./validation";
+  MEMBERSHIP_CONFIG,
+  createMembershipConfig,
+  isMembershipPaymentReady,
+  membershipPriceLabel,
+} from "../../config/membership";
+import { buildAdminMessage, buildTelegramAdminUrl } from "./validation";
 
-describe("membership application validation", () => {
-  const validApplication = {
-    displayName: "تریدر نمونه",
-    telegramUsername: "@trader_sample",
-    phone: "",
-    archetype: "oracle",
-    experienceLevel: "one_to_three_years",
-    motivation: "می‌خواهم تصمیم‌های بعد از ضرر را بهتر ثبت کنم.",
-    paymentMethod: "crypto" as const,
-    termsAccepted: true,
-  };
+const READY_CONFIG = {
+  enabled: true,
+  price: "120",
+  currency: "USDT",
+  network: "TRC20",
+  walletAddress: "TValidPublicAddress",
+  telegramAdminUsername: "purple_void_admin",
+  paymentGuide: "مبلغ دقیق را فقط روی شبکه اعلام‌شده ارسال کن.",
+};
 
-  it("normalizes a Telegram username without inventing contact data", () => {
-    expect(normalizeTelegramUsername(" @Trader_Sample ")).toBe("trader_sample");
-  });
-
-  it("rejects missing required fields and unaccepted terms", () => {
-    const result = membershipApplicationSchema.safeParse({
-      ...validApplication,
-      displayName: "",
-      telegramUsername: "bad username",
-      termsAccepted: false,
-    });
-
-    expect(result.success).toBe(false);
-  });
-
-  it("accepts a minimal honest membership application", () => {
-    expect(membershipApplicationSchema.safeParse(validApplication).success).toBe(true);
-  });
-});
-
-describe("manual crypto payment", () => {
-  it("keeps payment disabled while central config still contains placeholders", () => {
+describe("membership checkout configuration", () => {
+  it("keeps checkout disabled while public configuration is missing", () => {
     expect(isMembershipPaymentReady(MEMBERSHIP_CONFIG)).toBe(false);
   });
 
-  it("rejects empty or whitespace-only payment configuration values", () => {
-    const readyConfig = {
-      ...MEMBERSHIP_CONFIG,
+  it("reads checkout values from public environment configuration", () => {
+    const config = createMembershipConfig({
+      NEXT_PUBLIC_MEMBERSHIP_ENABLED: "true",
+      NEXT_PUBLIC_MEMBERSHIP_PRICE: "120.5",
+      NEXT_PUBLIC_MEMBERSHIP_CURRENCY: "USDT",
+      NEXT_PUBLIC_MEMBERSHIP_NETWORK: "TRC20",
+      NEXT_PUBLIC_MEMBERSHIP_WALLET_ADDRESS: "TValidPublicAddress",
+      NEXT_PUBLIC_MEMBERSHIP_TELEGRAM_ADMIN: "purple_void_admin",
+      NEXT_PUBLIC_MEMBERSHIP_PAYMENT_GUIDE: "راهنمای پرداخت",
+    });
+
+    expect(config).toEqual({
       enabled: true,
-      price: 120,
+      price: "120.5",
       currency: "USDT",
       network: "TRC20",
       walletAddress: "TValidPublicAddress",
       telegramAdminUsername: "purple_void_admin",
-      paymentGuide: "مبلغ دقیق را فقط روی شبکه اعلام‌شده ارسال کن.",
-      refundPolicy: "شرایط بازپرداخت پیش از پرداخت نمایش داده می‌شود.",
-    };
+      paymentGuide: "راهنمای پرداخت",
+    });
+    expect(isMembershipPaymentReady(config)).toBe(true);
+  });
 
-    for (const field of ["currency", "network", "walletAddress", "telegramAdminUsername", "paymentGuide", "refundPolicy"] as const) {
-      expect(isMembershipPaymentReady({ ...readyConfig, [field]: "   " })).toBe(false);
+  it("rejects every missing essential payment value", () => {
+    for (const field of ["currency", "network", "walletAddress", "telegramAdminUsername"] as const) {
+      expect(isMembershipPaymentReady({ ...READY_CONFIG, [field]: "   " })).toBe(false);
     }
+    expect(isMembershipPaymentReady({ ...READY_CONFIG, price: null })).toBe(false);
+    expect(isMembershipPaymentReady({ ...READY_CONFIG, enabled: false })).toBe(false);
   });
 
-  it("accepts only a complete non-placeholder payment configuration", () => {
-    expect(isMembershipPaymentReady({
-      ...MEMBERSHIP_CONFIG,
-      enabled: true,
-      price: 120,
-      currency: "USDT",
-      network: "TRC20",
-      walletAddress: "TValidPublicAddress",
-      telegramAdminUsername: "purple_void_admin",
-      paymentGuide: "مبلغ دقیق را فقط روی شبکه اعلام‌شده ارسال کن.",
-      refundPolicy: "شرایط بازپرداخت پیش از پرداخت نمایش داده می‌شود.",
-    })).toBe(true);
+  it("does not make the optional payment guide a checkout blocker", () => {
+    expect(isMembershipPaymentReady({ ...READY_CONFIG, paymentGuide: "" })).toBe(true);
   });
 
-  it("rejects empty TxID, invalid amount, and a mismatched currency or network", () => {
-    const result = paymentEvidenceSchema.safeParse({
-      transactionHash: "",
-      currency: "WRONG",
-      network: "WRONG",
-      paidAmount: 0,
-      telegramUsername: "@trader_sample",
-      senderWalletAddress: "",
-      paymentNote: "",
+  it("keeps checkout unavailable for a malformed Telegram username", () => {
+    expect(
+      isMembershipPaymentReady({
+        ...READY_CONFIG,
+        telegramAdminUsername: "bad username",
+      }),
+    ).toBe(false);
+  });
+
+  it.each([
+    "0x10",
+    "1e2",
+    "NaN",
+    "Infinity",
+    "0",
+    "-1",
+    "0.000000001",
+  ])("rejects invalid or unrepresentable price %s", (rawPrice) => {
+    const config = createMembershipConfig({
+      NEXT_PUBLIC_MEMBERSHIP_ENABLED: "true",
+      NEXT_PUBLIC_MEMBERSHIP_PRICE: rawPrice,
+      NEXT_PUBLIC_MEMBERSHIP_CURRENCY: "USDT",
+      NEXT_PUBLIC_MEMBERSHIP_NETWORK: "TRC20",
+      NEXT_PUBLIC_MEMBERSHIP_WALLET_ADDRESS: "TValidPublicAddress",
+      NEXT_PUBLIC_MEMBERSHIP_TELEGRAM_ADMIN: "purple_void_admin",
     });
 
-    expect(result.success).toBe(false);
+    expect(config.price).toBeNull();
+    expect(isMembershipPaymentReady(config)).toBe(false);
   });
 
-  it("builds a copyable admin message without seed phrase or private key fields", () => {
-    const message = buildAdminPaymentMessage({
-      displayName: "تریدر نمونه",
-      telegramUsername: "@trader_sample",
-      archetype: "بینش‌گر — THE VISIONARY",
-      expectedAmountLabel: "[MEMBERSHIP_PRICE]",
-      currency: "[PAYMENT_CURRENCY]",
-      network: "[PAYMENT_NETWORK]",
-      transactionHash: "0x1234567890abcdef",
+  it("accepts the minimum price representable by the eight-decimal label", () => {
+    const config = createMembershipConfig({
+      NEXT_PUBLIC_MEMBERSHIP_ENABLED: "true",
+      NEXT_PUBLIC_MEMBERSHIP_PRICE: "0.00000001",
+      NEXT_PUBLIC_MEMBERSHIP_CURRENCY: "USDT",
+      NEXT_PUBLIC_MEMBERSHIP_NETWORK: "TRC20",
+      NEXT_PUBLIC_MEMBERSHIP_WALLET_ADDRESS: "TValidPublicAddress",
+      NEXT_PUBLIC_MEMBERSHIP_TELEGRAM_ADMIN: "purple_void_admin",
     });
 
-    expect(message).toContain("TxID: 0x1234567890abcdef");
-    expect(message).toContain("آرکیتایپ: بینش‌گر — THE VISIONARY");
-    expect(message).not.toMatch(/Seed Phrase|Private Key/i);
+    expect(config.price).toBe("0.00000001");
+    expect(isMembershipPaymentReady(config)).toBe(true);
+  });
+
+  it("rejects prices that cannot be displayed without changing the amount", () => {
+    const config = createMembershipConfig({
+      NEXT_PUBLIC_MEMBERSHIP_ENABLED: "true",
+      NEXT_PUBLIC_MEMBERSHIP_PRICE: "1.000000001",
+      NEXT_PUBLIC_MEMBERSHIP_CURRENCY: "USDT",
+      NEXT_PUBLIC_MEMBERSHIP_NETWORK: "TRC20",
+      NEXT_PUBLIC_MEMBERSHIP_WALLET_ADDRESS: "TValidPublicAddress",
+      NEXT_PUBLIC_MEMBERSHIP_TELEGRAM_ADMIN: "purple_void_admin",
+    });
+
+    expect(config.price).toBeNull();
+    expect(isMembershipPaymentReady({ ...READY_CONFIG, price: "0.000000001" })).toBe(false);
+  });
+
+  it("preserves and displays an eight-decimal amount without floating-point rounding", () => {
+    const config = createMembershipConfig({
+      NEXT_PUBLIC_MEMBERSHIP_ENABLED: "true",
+      NEXT_PUBLIC_MEMBERSHIP_PRICE: "90071992.53740991",
+      NEXT_PUBLIC_MEMBERSHIP_CURRENCY: "USDT",
+      NEXT_PUBLIC_MEMBERSHIP_NETWORK: "TRC20",
+      NEXT_PUBLIC_MEMBERSHIP_WALLET_ADDRESS: "TValidPublicAddress",
+      NEXT_PUBLIC_MEMBERSHIP_TELEGRAM_ADMIN: "purple_void_admin",
+    });
+
+    expect(config.price).toBe("90071992.53740991");
+    expect(membershipPriceLabel(config)).toBe("۹۰٬۰۷۱٬۹۹۲٫۵۳۷۴۰۹۹۱");
+    expect(isMembershipPaymentReady(config)).toBe(true);
+  });
+});
+
+describe("Telegram handoff", () => {
+  it("builds the concise copyable admin message", () => {
+    expect(buildAdminMessage("بینش‌گر — THE VISIONARY")).toBe([
+      "سلام، برای عضویت Purple VOID پرداخت انجام دادم.",
+      "",
+      "نام:",
+      "آیدی تلگرام:",
+      "TxID:",
+      "نتیجه تست Purple VOID: بینش‌گر — THE VISIONARY",
+      "",
+      "اسکرین‌شات پرداخت را هم ارسال می‌کنم.",
+    ].join("\n"));
+  });
+
+  it("creates a direct Telegram link without a fragile prefilled message", () => {
+    expect(buildTelegramAdminUrl(" @Purple_VOID_Admin ")).toBe("https://t.me/Purple_VOID_Admin");
+    expect(buildTelegramAdminUrl("[TELEGRAM_ADMIN_USERNAME]")).toBeNull();
+    expect(buildTelegramAdminUrl("bad username")).toBeNull();
+  });
+
+  it("never asks for wallet secrets in the prepared message", () => {
+    expect(buildAdminMessage()).not.toMatch(/Seed Phrase|Private Key/i);
   });
 });

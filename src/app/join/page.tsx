@@ -4,8 +4,8 @@ import { MembershipFlow } from "@/features/membership/components/membership-flow
 import styles from "@/features/membership/components/membership-flow.module.css";
 
 export const metadata: Metadata = {
-  title: "درخواست عضویت",
-  description: "وضعیت ثبت عضویت Purple VOID و مسیر آماده‌سازی پیش از ورود.",
+  title: "عضویت در Purple VOID",
+  description: "اطلاعات پرداخت و مسیر تکمیل عضویت خصوصی Purple VOID از طریق ادمین تلگرام.",
   robots: { index: false, follow: false },
 };
 
@@ -15,28 +15,28 @@ export default function JoinPage() {
       <main className={styles.joinPage}>
         <section className={styles.hero}>
           <div className={styles.shell}>
-            <span className={styles.eyebrow}>قبل از ثبت درخواست</span>
+            <span className={styles.eyebrow}>PURPLE VOID · PRIVATE MEMBERSHIP</span>
             <h1>
-              درخواست عضویت <span className={styles.brandName} dir="ltr">Purple VOID</span>
+              عضویت در <span className={styles.brandName} dir="ltr">Purple VOID</span>
             </h1>
             <p>
-              مسیر عضویت در حال آماده‌سازی نهایی است. تا وقتی قیمت، شرایط و راه ارتباطی رسمی کامل نشده باشند،
-              از تو اطلاعات شخصی یا پرداخت دریافت نمی‌کنیم.
+              Purple VOID یک فضای خصوصی برای تمرین، شناخت و اصلاح رفتار معاملاتی است.
+              پس از پرداخت، عضویت توسط ادمین بررسی و نهایی می‌شود.
             </p>
           </div>
         </section>
 
         <section className={styles.content}>
           <div className={styles.shell}>
-            <div className={`${styles.formPanel} ${styles.unavailablePanel}`}>
-              <span className={styles.eyebrow}>وضعیت فعلی</span>
-              <h2>ثبت عضویت هنوز فعال نشده</h2>
+            <div className={styles.unavailablePanel}>
+              <span className={styles.eyebrow}>وضعیت عضویت</span>
+              <h2>ثبت عضویت به‌زودی فعال می‌شود.</h2>
               <p>
-                بعد از نهایی‌شدن شرایط عضویت، همین صفحه با اطلاعات شفاف و مسیر پرداخت امن فعال می‌شود.
-                فعلاً می‌توانی تست رفتاری را انجام بدهی و نتیجه‌ات را روی همین مرورگر نگه داری.
+                اطلاعات رسمی پرداخت هنوز کامل نشده است. به‌محض آماده‌شدن قیمت، شبکه، Wallet و راه ارتباطی ادمین،
+                همین صفحه با مسیر کوتاه پرداخت و تکمیل عضویت در تلگرام فعال می‌شود.
               </p>
               <a className={styles.primaryButton} href="/test">انجام تست ۳۵ سؤالی</a>
-              <small>در این مرحله هیچ اطلاعات تماس یا مالی از تو دریافت نمی‌شود.</small>
+              <small>تا زمان فعال‌شدن پرداخت، هیچ اطلاعات تماس یا مالی از تو دریافت نمی‌شود.</small>
             </div>
           </div>
         </section>

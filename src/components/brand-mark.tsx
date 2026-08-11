@@ -1,10 +1,8 @@
-/* eslint-disable @next/next/no-html-link-for-pages -- Native anchors avoid a Vinext production RSC prefetch crash. */
-import Image from "next/image";
-
+/* eslint-disable @next/next/no-html-link-for-pages, @next/next/no-img-element -- Native anchors avoid a Vinext RSC prefetch crash, and its image optimizer does not serve this local brand asset. */
 export function BrandMark() {
   return (
     <a className="brand-mark" href="/" aria-label="Purple VOID، محصولی از ایونتوم اسپیس">
-      <Image
+      <img
         className="brand-symbol"
         src="/brand/eventum-symbol-purple.png"
         alt=""

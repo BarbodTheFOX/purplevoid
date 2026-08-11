@@ -11,11 +11,11 @@ test("presents a concise and honest membership path", async ({ page }) => {
 test("does not collect personal data while membership payment is unavailable", async ({ page }) => {
   await page.goto("/join");
 
-  await expect(page.getByRole("heading", { name: "ثبت عضویت هنوز فعال نشده" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "ثبت عضویت به‌زودی فعال می‌شود." })).toBeVisible();
   await expect(page.getByRole("textbox")).toHaveCount(0);
   await expect(page.getByText(/\[[A-Z_]+\]/)).toHaveCount(0);
   await expect(page.getByRole("link", { name: "انجام تست ۳۵ سؤالی" })).toHaveAttribute("href", "/test");
-  await expect(page.getByText("در این مرحله هیچ اطلاعات تماس یا مالی از تو دریافت نمی‌شود.")).toBeVisible();
+  await expect(page.getByText("تا زمان فعال‌شدن پرداخت، هیچ اطلاعات تماس یا مالی از تو دریافت نمی‌شود.")).toBeVisible();
 });
 
 test("keeps the join flow free of horizontal overflow on mobile", async ({ page }) => {

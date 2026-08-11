@@ -3,405 +3,211 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   MEMBERSHIP_CONFIG,
-  isConfigPlaceholder,
-  isMembershipPaymentReady,
   membershipPriceLabel,
 } from "@/config/membership";
-import { readResult } from "@/features/test/lib/storage";
 import { AXES } from "@/features/test/data/axes";
-import type { MembershipStatus } from "../types";
-import {
-  buildAdminPaymentMessage,
-  membershipApplicationSchema,
-  normalizeTelegramUsername,
-  paymentEvidenceSchema,
-} from "../validation";
+import { readResult } from "@/features/test/lib/storage";
+import type { ScoredResult } from "@/features/test/types";
+import { buildAdminMessage, buildTelegramAdminUrl } from "../validation";
 import styles from "./membership-flow.module.css";
 
-type Step = "application" | "review" | "payment" | "handoff";
-type FieldErrors = Record<string, string>;
+type CopyTarget = "wallet" | "message";
+type CopyState = "idle" | "copied" | "failed";
 
-type ApplicationForm = {
-  displayName: string;
-  telegramUsername: string;
-  phone: string;
-  archetype: string;
-  experienceLevel: string;
-  motivation: string;
-  paymentMethod: "crypto";
-  termsAccepted: boolean;
-};
+function copyWithSelection(text: string): boolean {
+  let textarea: HTMLTextAreaElement | null = null;
+  try {
+    textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    return document.execCommand("copy");
+  } catch {
+    return false;
+  } finally {
+    textarea?.remove();
+  }
+}
 
-type PaymentForm = {
-  transactionHash: string;
-  currency: string;
-  network: string;
-  paidAmount: string;
-  telegramUsername: string;
-  senderWalletAddress: string;
-  paymentNote: string;
-};
-
-const EXPERIENCE_LABELS: Record<string, string> = {
-  learning: "در حال یادگیری یا بدون معامله واقعی",
-  under_one_year: "کمتر از یک سال",
-  one_to_three_years: "یک تا سه سال",
-  over_three_years: "بیشتر از سه سال",
-};
-
-const ARCHETYPE_LABELS: Record<string, string> = {
-  architect: `${AXES.architect.persianName} — ${AXES.architect.englishName}`,
-  oracle: `${AXES.oracle.persianName} — ${AXES.oracle.englishName}`,
-  alchemist: `${AXES.alchemist.persianName} — ${AXES.alchemist.englishName}`,
-  phantom: `${AXES.phantom.persianName} — ${AXES.phantom.englishName}`,
-  sovereign: `${AXES.sovereign.persianName} — ${AXES.sovereign.englishName}`,
-  balanced: "پروفایل متعادل",
-  blended: "پروفایل ترکیبی",
-  unknown: "هنوز تست را انجام نداده‌ام",
-};
-
-const STATUS_LABELS: Record<MembershipStatus, string> = {
-  draft: "در حال تکمیل درخواست",
-  submitted: "درخواست ثبت‌شده",
-  waiting_for_payment: "در انتظار اطلاعات پرداخت",
-  payment_submitted: "آماده ارسال برای بررسی",
-  under_review: "در حال بررسی ادمین",
-  approved: "تأییدشده",
-  needs_correction: "نیازمند اصلاح",
-  rejected: "ردشده",
-};
-
-const TERMS = [
-  "Purple VOID کانال سیگنال نیست و هیچ سودی را تضمین نمی‌کند.",
-  "مسئولیت تصمیم‌ها و معاملات با خود کاربر است.",
-  "محتوا جایگزین روان‌درمانی یا مشاوره مالی نیست.",
-  "دسترسی عضویت شخصی است و انتشار محتوای اختصاصی بدون اجازه مجاز نیست.",
-  "فعال‌شدن عضویت به بررسی دستی پرداخت وابسته است.",
+const HANDOFF_STEPS = [
+  "پرداخت را انجام بده.",
+  "از تراکنش Screenshot بگیر.",
+  "TxID / Transaction Hash را نگه دار.",
+  "روی دکمه ادامه عضویت بزن.",
+  "Screenshot و TxID را برای ادمین Purple VOID ارسال کن.",
 ] as const;
 
-function issuesToErrors(issues: readonly { path: PropertyKey[]; message: string }[]): FieldErrors {
-  return Object.fromEntries(issues.map((issue) => [String(issue.path[0]), issue.message]));
-}
-
-function fieldId(group: "application" | "payment", field: string): string {
-  return `membership-${group}-${field}`;
-}
-
-function focusFirstInvalid(group: "application" | "payment", issues: readonly { path: PropertyKey[] }[]): void {
-  const firstField = issues[0]?.path[0];
-  if (firstField === undefined) return;
-  window.requestAnimationFrame(() => {
-    document.getElementById(fieldId(group, String(firstField)))?.focus();
-  });
-}
-
-function FieldError({ id, message }: { id: string; message?: string }) {
-  return message ? <span id={id} className={styles.fieldError} role="alert">{message}</span> : null;
+function resultLabel(result: ScoredResult | null): string | undefined {
+  if (!result) return undefined;
+  if (result.primaryAxis) {
+    const axis = AXES[result.primaryAxis];
+    return `${axis.persianName} — ${axis.englishName}`;
+  }
+  if (result.resultType === "balanced") return "پروفایل متعادل";
+  if (result.resultType === "blended") return "پروفایل ترکیبی";
+  return undefined;
 }
 
 export function MembershipFlow() {
-  const paymentReady = isMembershipPaymentReady(MEMBERSHIP_CONFIG);
-  const priceLabel = membershipPriceLabel();
-  const [step, setStep] = useState<Step>("application");
-  const [status, setStatus] = useState<MembershipStatus>("draft");
-  const [applicationErrors, setApplicationErrors] = useState<FieldErrors>({});
-  const [paymentErrors, setPaymentErrors] = useState<FieldErrors>({});
-  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
-  const [submitting, setSubmitting] = useState(false);
+  const [archetype, setArchetype] = useState<string>();
   const [ready, setReady] = useState(false);
-  const [application, setApplication] = useState<ApplicationForm>({
-    displayName: "",
-    telegramUsername: "",
-    phone: "",
-    archetype: "unknown",
-    experienceLevel: "",
-    motivation: "",
-    paymentMethod: "crypto",
-    termsAccepted: false,
-  });
-  const [payment, setPayment] = useState<PaymentForm>({
-    transactionHash: "",
-    currency: MEMBERSHIP_CONFIG.currency,
-    network: MEMBERSHIP_CONFIG.network,
-    paidAmount: MEMBERSHIP_CONFIG.price?.toString() ?? "",
-    telegramUsername: "",
-    senderWalletAddress: "",
-    paymentNote: "",
+  const [copyState, setCopyState] = useState<Record<CopyTarget, CopyState>>({
+    wallet: "idle",
+    message: "idle",
   });
 
   useEffect(() => {
-    const result = readResult();
-    if (result) {
-      const archetype = result.primaryAxis ?? (result.resultType === "balanced" ? "balanced" : result.resultType === "blended" ? "blended" : "unknown");
-      setApplication((current) => ({ ...current, archetype }));
-    }
+    setArchetype(resultLabel(readResult()));
     setReady(true);
   }, []);
 
-  const adminMessage = useMemo(() => buildAdminPaymentMessage({
-    displayName: application.displayName,
-    telegramUsername: application.telegramUsername,
-    archetype: application.archetype === "unknown" ? undefined : ARCHETYPE_LABELS[application.archetype],
-    expectedAmountLabel: priceLabel,
-    currency: MEMBERSHIP_CONFIG.currency,
-    network: MEMBERSHIP_CONFIG.network,
-    transactionHash: payment.transactionHash,
-  }), [application, payment.transactionHash, priceLabel]);
+  const adminMessage = useMemo(() => buildAdminMessage(archetype), [archetype]);
+  const telegramUrl = buildTelegramAdminUrl(MEMBERSHIP_CONFIG.telegramAdminUsername);
 
-  const telegramAdmin = normalizeTelegramUsername(MEMBERSHIP_CONFIG.telegramAdminUsername);
-  const telegramUrl = !isConfigPlaceholder(MEMBERSHIP_CONFIG.telegramAdminUsername)
-    ? `https://t.me/${encodeURIComponent(telegramAdmin)}`
-    : null;
-
-  function updateApplication<K extends keyof ApplicationForm>(key: K, value: ApplicationForm[K]) {
-    setApplication((current) => ({ ...current, [key]: value }));
-    setApplicationErrors((current) => ({ ...current, [key]: "" }));
-  }
-
-  function reviewApplication(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const result = membershipApplicationSchema.safeParse(application);
-    if (!result.success) {
-      setApplicationErrors(issuesToErrors(result.error.issues));
-      focusFirstInvalid("application", result.error.issues);
-      return;
-    }
-
-    const telegramUsername = `@${result.data.telegramUsername}`;
-    setApplication((current) => ({ ...current, ...result.data, telegramUsername }));
-    setPayment((current) => ({ ...current, telegramUsername }));
-    setApplicationErrors({});
-    setStatus("submitted");
-    setStep("review");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  function continueToPayment() {
-    if (!paymentReady) return;
-    setStatus("waiting_for_payment");
-    setStep("payment");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  function submitPayment(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!paymentReady || submitting) return;
-    setSubmitting(true);
-    const result = paymentEvidenceSchema.safeParse(payment);
-    if (!result.success) {
-      setPaymentErrors(issuesToErrors(result.error.issues));
-      focusFirstInvalid("payment", result.error.issues);
-      setSubmitting(false);
-      return;
-    }
-    setPaymentErrors({});
-    setPayment((current) => ({ ...current, paidAmount: String(result.data.paidAmount), telegramUsername: `@${result.data.telegramUsername}` }));
-    setStatus("payment_submitted");
-    setStep("handoff");
-    setSubmitting(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  async function copyText(text: string) {
+  async function copyText(target: CopyTarget, text: string) {
     try {
-      await navigator.clipboard.writeText(text);
-      setCopyState("copied");
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else if (!copyWithSelection(text)) {
+        throw new Error("Clipboard unavailable");
+      }
+      setCopyState((current) => ({ ...current, [target]: "copied" }));
     } catch {
-      setCopyState("failed");
+      setCopyState((current) => ({
+        ...current,
+        [target]: copyWithSelection(text) ? "copied" : "failed",
+      }));
     }
   }
 
   return (
-    <div className={styles.joinPage}>
+    <main className={styles.joinPage}>
       <section className={styles.hero}>
         <div className={styles.shell}>
-          <div className={styles.heroGrid}>
-            <div>
-              <span className={styles.eyebrow}>PURPLE VOID · MEMBERSHIP</span>
-              <h1>درخواست عضویت Purple VOID</h1>
-              <p>این مسیر برای ثبت درخواست و پرداخت دستی کریپتو طراحی شده است. قبل از هر واریز، اطلاعات را مرور می‌کنی و بعد از پرداخت، TxID را برای ادمین می‌فرستی.</p>
-            </div>
-            <ol className={styles.stepRail} aria-label="مراحل عضویت">
-              <li className={step === "application" ? styles.activeStep : ""}><span>۱</span>اطلاعات اولیه</li>
-              <li className={step === "review" ? styles.activeStep : ""}><span>۲</span>مرور درخواست</li>
-              <li className={step === "payment" ? styles.activeStep : ""}><span>۳</span>پرداخت دستی</li>
-              <li className={step === "handoff" ? styles.activeStep : ""}><span>۴</span>ارسال برای بررسی</li>
-            </ol>
+          <span className={styles.eyebrow}>PURPLE VOID · PRIVATE MEMBERSHIP</span>
+          <h1>عضویت در <span className={styles.brandName} dir="ltr">Purple VOID</span></h1>
+          <p>
+            Purple VOID یک فضای خصوصی برای تمرین، شناخت و اصلاح رفتار معاملاتی است.
+            پس از پرداخت، عضویت توسط ادمین بررسی و نهایی می‌شود.
+          </p>
+          <div className={styles.heroMeta} aria-label="خلاصه مسیر عضویت">
+            <span>پرداخت مستقیم</span>
+            <span>بررسی دستی</span>
+            <span>تکمیل در تلگرام</span>
           </div>
         </div>
       </section>
 
       <section className={styles.content}>
         <div className={styles.shell}>
-          <div className={styles.statusBar} role="status">
-            <span>وضعیت فعلی</span><strong>{STATUS_LABELS[status]}</strong>
-            <small>تأیید یا رد نهایی فقط بعد از اتصال Backend و بررسی ادمین ثبت می‌شود.</small>
-          </div>
-
-          {step === "application" ? (
-            <div className={styles.twoColumn}>
-              <aside className={styles.contextPanel}>
-                <span>قبل از فرم</span>
-                <h2>عضویت قرار است چه چیزی به تو بدهد؟</h2>
-                <ul>
-                  <li>محتوای مرتبط با آرکیتایپ غالب</li>
-                  <li>تمرین رفتاری و Reflection</li>
-                  <li>Purple Quest و فایل‌های کاربردی</li>
-                  <li>مرور دوره‌ای رفتار و بازآزمایی</li>
-                </ul>
-                <p>اگر هنوز تست را انجام نداده‌ای، می‌توانی فرم را ثبت کنی؛ اما نتیجه تست کمک می‌کند مسیر مرتبط‌تری را شروع کنی.</p>
-                <a href="/test">انجام تست ۳۵ سؤالی</a>
-              </aside>
-
-              <form className={styles.formPanel} onSubmit={reviewApplication} noValidate>
-                <header><span>مرحله ۱</span><h2>اطلاعات اولیه</h2><p>فقط اطلاعاتی را می‌گیریم که برای تماس و بررسی درخواست لازم است.</p></header>
-                <div className={styles.formGrid}>
-                  <label>
-                    <span>نام یا نام مستعار <b>*</b></span>
-                    <input id={fieldId("application", "displayName")} aria-invalid={Boolean(applicationErrors.displayName)} aria-describedby={applicationErrors.displayName ? `${fieldId("application", "displayName")}-error` : undefined} value={application.displayName} onChange={(event) => updateApplication("displayName", event.target.value)} />
-                    <FieldError id={`${fieldId("application", "displayName")}-error`} message={applicationErrors.displayName} />
-                  </label>
-                  <label>
-                    <span>آیدی تلگرام <b>*</b></span>
-                    <input id={fieldId("application", "telegramUsername")} dir="ltr" placeholder="@username" aria-invalid={Boolean(applicationErrors.telegramUsername)} aria-describedby={applicationErrors.telegramUsername ? `${fieldId("application", "telegramUsername")}-error` : undefined} value={application.telegramUsername} onChange={(event) => updateApplication("telegramUsername", event.target.value)} />
-                    <FieldError id={`${fieldId("application", "telegramUsername")}-error`} message={applicationErrors.telegramUsername} />
-                  </label>
-                  <label>
-                    <span>شماره تماس <small>اختیاری</small></span>
-                    <input id={fieldId("application", "phone")} dir="ltr" inputMode="tel" value={application.phone} onChange={(event) => updateApplication("phone", event.target.value)} />
-                  </label>
-                  <label>
-                    <span>نتیجه آرکیتایپ</span>
-                    <select id={fieldId("application", "archetype")} value={application.archetype} onChange={(event) => updateApplication("archetype", event.target.value)}>
-                      {Object.entries(ARCHETYPE_LABELS).map(([value, label]) => <option value={value} key={value}>{label}</option>)}
-                    </select>
-                  </label>
-                  <label className={styles.fullField}>
-                    <span>سطح تجربه در ترید <b>*</b></span>
-                    <select id={fieldId("application", "experienceLevel")} aria-invalid={Boolean(applicationErrors.experienceLevel)} aria-describedby={applicationErrors.experienceLevel ? `${fieldId("application", "experienceLevel")}-error` : undefined} value={application.experienceLevel} onChange={(event) => updateApplication("experienceLevel", event.target.value)}>
-                      <option value="">انتخاب کن</option>
-                      {Object.entries(EXPERIENCE_LABELS).map(([value, label]) => <option value={value} key={value}>{label}</option>)}
-                    </select>
-                    <FieldError id={`${fieldId("application", "experienceLevel")}-error`} message={applicationErrors.experienceLevel} />
-                  </label>
-                  <label className={styles.fullField}>
-                    <span>چرا به عضویت علاقه داری؟ <small>اختیاری</small></span>
-                    <textarea id={fieldId("application", "motivation")} rows={4} maxLength={600} value={application.motivation} onChange={(event) => updateApplication("motivation", event.target.value)} />
-                  </label>
-                </div>
-
-                <div className={styles.termsBox}>
-                  <h3>قوانین عضویت</h3>
-                  <ul>{TERMS.map((term) => <li key={term}>{term}</li>)}</ul>
-                  {MEMBERSHIP_CONFIG.refundPolicy ? <p>سیاست بازپرداخت: <strong>{MEMBERSHIP_CONFIG.refundPolicy}</strong></p> : null}
-                  <label className={styles.checkLabel}>
-                    <input id={fieldId("application", "termsAccepted")} type="checkbox" aria-invalid={Boolean(applicationErrors.termsAccepted)} aria-describedby={applicationErrors.termsAccepted ? `${fieldId("application", "termsAccepted")}-error` : undefined} checked={application.termsAccepted} onChange={(event) => updateApplication("termsAccepted", event.target.checked)} />
-                    <span>Purple VOID کانال سیگنال نیست و قوانین عضویت را خوانده‌ام و می‌پذیرم. <b>*</b></span>
-                  </label>
-                  <FieldError id={`${fieldId("application", "termsAccepted")}-error`} message={applicationErrors.termsAccepted} />
-                </div>
-
-                <button className={styles.primaryButton} type="submit" disabled={!ready}>بررسی اطلاعات</button>
-              </form>
-            </div>
-          ) : null}
-
-          {step === "review" ? (
-            <div className={styles.reviewLayout}>
-              <div className={styles.reviewPanel}>
-                <header><span>مرحله ۲</span><h2>قبل از پرداخت، اطلاعاتت را مرور کن</h2><p>در این نسخه اطلاعات هنوز برای Backend ارسال نمی‌شود و فقط در حافظه همین صفحه قرار دارد.</p></header>
-                <dl>
-                  <div><dt>نام</dt><dd>{application.displayName}</dd></div>
-                  <div><dt>تلگرام</dt><dd dir="ltr">{application.telegramUsername}</dd></div>
-                  <div><dt>آرکیتایپ</dt><dd>{ARCHETYPE_LABELS[application.archetype]}</dd></div>
-                  <div><dt>تجربه</dt><dd>{EXPERIENCE_LABELS[application.experienceLevel]}</dd></div>
-                  <div><dt>روش پرداخت</dt><dd>کریپتو · بررسی دستی</dd></div>
-                </dl>
-                <button className={styles.secondaryButton} type="button" onClick={() => setStep("application")}>بازگشت و اصلاح اطلاعات</button>
-              </div>
-
-              <aside className={styles.paymentSummary}>
+          <div className={styles.checkoutGrid}>
+            <article className={styles.paymentPanel} aria-labelledby="payment-title">
+              <header className={styles.panelHeader}>
                 <span>اطلاعات پرداخت</span>
-                <div><small>مبلغ</small><strong>{priceLabel}</strong></div>
-                <div><small>ارز</small><strong dir="ltr">{MEMBERSHIP_CONFIG.currency}</strong></div>
-                <div><small>شبکه</small><strong dir="ltr">{MEMBERSHIP_CONFIG.network}</strong></div>
-                {!paymentReady ? <p className={styles.pendingAlert}>اطلاعات پرداخت هنوز نهایی نشده است. فعلاً واریزی انجام نده.</p> : null}
-                <button className={styles.primaryButton} type="button" disabled={!paymentReady} onClick={continueToPayment}>ادامه برای پرداخت</button>
-              </aside>
-            </div>
-          ) : null}
+                <h2 id="payment-title">پرداخت عضویت</h2>
+                <p>{MEMBERSHIP_CONFIG.paymentGuide}</p>
+              </header>
 
-          {step === "payment" ? (
-            <div className={styles.paymentLayout}>
-              <div className={styles.walletPanel}>
-                <header><span>مرحله ۳</span><h2>پرداخت دستی با کریپتو</h2><p>{MEMBERSHIP_CONFIG.paymentGuide}</p></header>
-                <div className={styles.paymentFacts}>
-                  <div><small>مبلغ دقیق</small><strong>{priceLabel}</strong></div>
-                  <div><small>ارز</small><strong dir="ltr">{MEMBERSHIP_CONFIG.currency}</strong></div>
-                  <div><small>شبکه</small><strong dir="ltr">{MEMBERSHIP_CONFIG.network}</strong></div>
+              <dl className={styles.paymentFacts}>
+                <div>
+                  <dt>هزینه عضویت</dt>
+                  <dd>{membershipPriceLabel()}</dd>
                 </div>
-                <div className={styles.walletAddress}>
-                  <span>آدرس کیف پول</span>
-                  <code dir="ltr">{MEMBERSHIP_CONFIG.walletAddress}</code>
-                  <button type="button" onClick={() => copyText(MEMBERSHIP_CONFIG.walletAddress)}>کپی آدرس کیف پول</button>
+                <div>
+                  <dt>ارز پرداخت</dt>
+                  <dd dir="ltr">{MEMBERSHIP_CONFIG.currency}</dd>
                 </div>
-                <ul className={styles.warnings}>
-                  <li>فقط از شبکه‌ای که در این صفحه نوشته شده استفاده کن.</li>
-                  <li>ارسال از شبکه اشتباه ممکن است باعث ازدست‌رفتن دارایی شود.</li>
-                  <li>هزینه شبکه بر عهده پرداخت‌کننده است و فقط ارز و شبکه مشخص‌شده پذیرفته می‌شود.</li>
-                  <li>قبل از واریز، آدرس کیف پول و شبکه را دوباره بررسی کن.</li>
-                  <li>هیچ‌کس از طرف Purple VOID نباید Seed Phrase یا Private Key تو را درخواست کند.</li>
-                </ul>
+                <div>
+                  <dt>شبکه</dt>
+                  <dd dir="ltr">{MEMBERSHIP_CONFIG.network}</dd>
+                </div>
+              </dl>
+
+              <div className={styles.walletBlock}>
+                <div className={styles.walletHeading}>
+                  <span>آدرس Wallet</span>
+                  <span className={styles.ltrBadge} dir="ltr">{MEMBERSHIP_CONFIG.network}</span>
+                </div>
+                <code dir="ltr">{MEMBERSHIP_CONFIG.walletAddress}</code>
+                <button
+                  className={styles.copyButton}
+                  type="button"
+                  disabled={!ready}
+                  onClick={() => copyText("wallet", MEMBERSHIP_CONFIG.walletAddress)}
+                >
+                  کپی آدرس
+                </button>
+                {copyState.wallet === "copied" ? <p className={styles.copySuccess} role="status">آدرس کپی شد</p> : null}
+                {copyState.wallet === "failed" ? <p className={styles.copyError} role="alert">کپی خودکار انجام نشد؛ آدرس را دستی کپی کن.</p> : null}
               </div>
 
-              <form className={styles.formPanel} onSubmit={submitPayment} noValidate>
-                <header><span>بعد از واریز</span><h2>اطلاعات تراکنش</h2><p>TxID را نگه دار. این فرم تراکنش را روی شبکه تأیید نمی‌کند؛ اطلاعات برای بررسی دستی آماده می‌شود.</p></header>
-                <div className={styles.formGrid}>
-                  <label className={styles.fullField}>
-                    <span>Transaction Hash / TxID <b>*</b></span>
-                    <input id={fieldId("payment", "transactionHash")} dir="ltr" aria-invalid={Boolean(paymentErrors.transactionHash)} aria-describedby={paymentErrors.transactionHash ? `${fieldId("payment", "transactionHash")}-error` : undefined} value={payment.transactionHash} onChange={(event) => setPayment((current) => ({ ...current, transactionHash: event.target.value }))} />
-                    <FieldError id={`${fieldId("payment", "transactionHash")}-error`} message={paymentErrors.transactionHash} />
-                  </label>
-                  <label><span>ارز پرداختی <b>*</b></span><input id={fieldId("payment", "currency")} dir="ltr" readOnly value={payment.currency} /></label>
-                  <label><span>شبکه <b>*</b></span><input id={fieldId("payment", "network")} dir="ltr" readOnly value={payment.network} /></label>
-                  <label>
-                    <span>مبلغ ارسال‌شده <b>*</b></span>
-                    <input id={fieldId("payment", "paidAmount")} dir="ltr" inputMode="decimal" aria-invalid={Boolean(paymentErrors.paidAmount)} aria-describedby={paymentErrors.paidAmount ? `${fieldId("payment", "paidAmount")}-error` : undefined} value={payment.paidAmount} onChange={(event) => setPayment((current) => ({ ...current, paidAmount: event.target.value }))} />
-                    <FieldError id={`${fieldId("payment", "paidAmount")}-error`} message={paymentErrors.paidAmount} />
-                  </label>
-                  <label>
-                    <span>آیدی تلگرام <b>*</b></span>
-                    <input id={fieldId("payment", "telegramUsername")} dir="ltr" aria-invalid={Boolean(paymentErrors.telegramUsername)} aria-describedby={paymentErrors.telegramUsername ? `${fieldId("payment", "telegramUsername")}-error` : undefined} value={payment.telegramUsername} onChange={(event) => setPayment((current) => ({ ...current, telegramUsername: event.target.value }))} />
-                    <FieldError id={`${fieldId("payment", "telegramUsername")}-error`} message={paymentErrors.telegramUsername} />
-                  </label>
-                  <label className={styles.fullField}><span>آدرس کیف پول مبدأ <small>اختیاری</small></span><input id={fieldId("payment", "senderWalletAddress")} dir="ltr" value={payment.senderWalletAddress} onChange={(event) => setPayment((current) => ({ ...current, senderWalletAddress: event.target.value }))} /></label>
-                  <label className={styles.fullField}><span>توضیحات <small>اختیاری</small></span><textarea id={fieldId("payment", "paymentNote")} rows={3} maxLength={500} value={payment.paymentNote} onChange={(event) => setPayment((current) => ({ ...current, paymentNote: event.target.value }))} /></label>
-                </div>
-                <button className={styles.primaryButton} type="submit" disabled={submitting}>{submitting ? "در حال بررسی فرم…" : "ثبت اطلاعات تراکنش"}</button>
-              </form>
-            </div>
-          ) : null}
-
-          {step === "handoff" ? (
-            <div className={styles.handoffPanel}>
-              <header><span>مرحله ۴</span><h2>اطلاعات پرداخت آماده شد</h2><p>اطلاعات پرداخت آماده شد. آن را برای ادمین ارسال کن تا تراکنش بررسی شود. این پیام به معنی تأیید پرداخت نیست.</p></header>
-              <pre dir="rtl">{adminMessage}</pre>
-              <div className={styles.handoffActions}>
-                <button className={styles.primaryButton} type="button" onClick={() => copyText(adminMessage)}>کپی اطلاعات پرداخت</button>
-                {telegramUrl ? <a className={styles.secondaryButton} href={telegramUrl} target="_blank" rel="noopener noreferrer">بازکردن تلگرام ادمین</a> : <button className={styles.secondaryButton} type="button" disabled>بازکردن تلگرام ادمین</button>}
+              <div className={styles.warningPanel}>
+                <strong>قبل از انتقال، یک‌بار دیگر بررسی کن</strong>
+                <p>فقط با ارز و شبکه‌ای که در این صفحه مشخص شده پرداخت کن. ارسال روی شبکه اشتباه ممکن است باعث از دست رفتن دارایی شود.</p>
+                <p>هیچ‌کس از طرف Purple VOID نباید Seed Phrase یا Private Key تو را درخواست کند.</p>
               </div>
-              {copyState === "copied" ? <p role="status">اطلاعات کپی شد. حالا تلگرام ادمین را باز کن و متن را بفرست.</p> : null}
-              {copyState === "failed" ? <p role="alert">کپی خودکار انجام نشد؛ متن داخل کادر را دستی کپی کن.</p> : null}
-              <div className={styles.securityNote}><strong>یادآوری امنیتی</strong><span>Seed Phrase، Private Key یا کدهای دسترسی کیف پولت را برای هیچ‌کس ارسال نکن.</span></div>
-            </div>
-          ) : null}
+            </article>
 
-          <div className={styles.integrationNote}>
-            <strong>وضعیت فنی این نسخه</strong>
-            <p>ثبت دائمی درخواست، آپلود رسید، بررسی On-chain و تغییر وضعیت توسط ادمین هنوز به Backend یا Supabase متصل نشده‌اند. هیچ اطلاعات فرم در LocalStorage یا Console ذخیره نمی‌شود.</p>
+            <aside className={styles.processPanel} aria-labelledby="after-payment-title">
+              <span className={styles.eyebrow}>مسیر ادامه</span>
+              <h2 id="after-payment-title">بعد از پرداخت چه کار کنم؟</h2>
+              <ol>
+                {HANDOFF_STEPS.map((step, index) => (
+                  <li key={step}>
+                    <span>{new Intl.NumberFormat("fa-IR").format(index + 1)}</span>
+                    <p>{step}</p>
+                  </li>
+                ))}
+              </ol>
+              <p className={styles.processNote}>رسید داخل سایت آپلود نمی‌شود؛ آن را مستقیماً در تلگرام برای ادمین بفرست.</p>
+            </aside>
           </div>
+
+          <section className={styles.handoffPanel} aria-labelledby="handoff-title">
+            <div className={styles.handoffCopy}>
+              <span className={styles.eyebrow}>آماده برای ارسال</span>
+              <h2 id="handoff-title">متن برای ادمین</h2>
+              <p>این متن را کپی کن، بخش‌های خالی را در تلگرام کامل کن و Screenshot پرداخت را هم بفرست.</p>
+              {archetype ? <div className={styles.resultBadge}>نتیجه تست روی این مرورگر پیدا شد: <strong>{archetype}</strong></div> : null}
+            </div>
+
+            <div className={styles.messageBox}>
+              <pre dir="rtl">{adminMessage}</pre>
+              <button
+                className={styles.copyButton}
+                type="button"
+                disabled={!ready}
+                onClick={() => copyText("message", adminMessage)}
+              >
+                کپی متن برای ادمین
+              </button>
+              {copyState.message === "copied" ? <p className={styles.copySuccess} role="status">متن برای ادمین کپی شد</p> : null}
+              {copyState.message === "failed" ? <p className={styles.copyError} role="alert">کپی خودکار انجام نشد؛ متن داخل کادر را دستی کپی کن.</p> : null}
+            </div>
+
+            <div className={styles.ctaBlock}>
+              {telegramUrl ? (
+                <a
+                  className={styles.primaryButton}
+                  href={telegramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-describedby="telegram-handoff-note"
+                >
+                  پرداخت کردم — تکمیل عضویت
+                </a>
+              ) : null}
+              <small id="telegram-handoff-note">
+                مرحله نهایی عضویت توسط ادمین Purple VOID انجام می‌شود.
+                <span className={styles.srOnly}> لینک تلگرام در پنجره جدید باز می‌شود.</span>
+              </small>
+            </div>
+          </section>
         </div>
       </section>
-    </div>
+    </main>
   );
 }
