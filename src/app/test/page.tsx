@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
 import { TestIntroForm } from "@/features/test/components/test-intro-form";
 import { TEST_INTRO_COPY } from "@/features/test/data/questions";
+import { buildPageMetadata } from "@/lib/page-metadata";
 
-export const metadata: Metadata = {
-  title: "شروع آزمون",
+export const metadata = buildPageMetadata({
+  title: "شروع آزمون | Purple VOID",
   description: "راهنمای شروع آزمون ۳۵ سؤالی پروفایل رفتاری Purple VOID.",
-};
+  path: "/test",
+});
 
 export default function TestIntroductionPage() {
   return (

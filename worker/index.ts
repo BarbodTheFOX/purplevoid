@@ -4,6 +4,7 @@ import {
   handleImageOptimization,
 } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { applySecurityHeaders } from "../src/lib/security-headers";
 
 interface AssetFetcher {
   fetch(request: Request): Promise<Response>;
@@ -34,7 +35,7 @@ const worker = {
 
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
-      return handleImageOptimization(
+      const imageResponse = await handleImageOptimization(
         request,
         {
           fetchAsset: (path) =>
@@ -48,9 +49,11 @@ const worker = {
         },
         allowedWidths,
       );
+      return applySecurityHeaders(request, imageResponse);
     }
 
-    return handler.fetch(request, env, ctx);
+    const response = await handler.fetch(request, env, ctx);
+    return applySecurityHeaders(request, response);
   },
 };
 

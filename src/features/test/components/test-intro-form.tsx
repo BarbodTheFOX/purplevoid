@@ -27,6 +27,7 @@ export function TestIntroForm() {
   const [progress, setProgress] = useState<StoredProgress | null>(null);
   const [hasResult, setHasResult] = useState(false);
   const [ready, setReady] = useState(false);
+  const [storageError, setStorageError] = useState("");
 
   useEffect(() => {
     setProgress(readProgress());
@@ -56,7 +57,11 @@ export function TestIntroForm() {
       tieBreakSeed,
       tieBreakOrder: createTieBreakOrder(tieBreakSeed),
     };
-    saveProgress(nextProgress);
+    if (!saveProgress(nextProgress)) {
+      setStorageError("مرورگر اجازه ذخیره آزمون را نمی‌دهد. فضای ذخیره‌سازی یا تنظیمات حریم خصوصی مرورگر را بررسی کن و دوباره تلاش کن.");
+      return;
+    }
+    setStorageError("");
     window.location.assign("/test/questions");
   }
 
@@ -122,6 +127,8 @@ export function TestIntroForm() {
         </div>
         <p className="answer-reminder">جوابی رو انتخاب کن که به رفتار واقعی تو نزدیک تره؛ نه رفتاری که فکر می کنی درست تره.</p>
       </section>
+
+      {storageError ? <p className="form-error" role="alert">{storageError}</p> : null}
 
       <div className="test-start-row">
         <button className="button" type="button" disabled={!tradeRange} onClick={beginTest} data-testid="begin-questions">

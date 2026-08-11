@@ -1,7 +1,14 @@
 import Image from "next/image";
 import { AXES, AXIS_IDS } from "@/features/test/data/axes";
+import { buildPageMetadata } from "@/lib/page-metadata";
 import { LandingMotion } from "./landing-motion";
 import styles from "./landing.module.css";
+
+export const metadata = buildPageMetadata({
+  title: "Purple VOID | پروفایل رفتاری معامله‌گر",
+  description: "آزمون آموزشی پنج‌محوری برای مشاهده الگوهای رفتاری اخیر معامله‌گران فارسی‌زبان.",
+  path: "/",
+});
 
 export default function HomePage() {
   return (

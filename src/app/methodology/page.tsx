@@ -1,10 +1,11 @@
-import type { Metadata } from "next";
 import { AXES, AXIS_IDS } from "@/features/test/data/axes";
+import { buildPageMetadata } from "@/lib/page-metadata";
 
-export const metadata: Metadata = {
-  title: "روش‌شناسی",
+export const metadata = buildPageMetadata({
+  title: "روش‌شناسی | Purple VOID",
   description: "توضیح ساده پنج بُعد و محدودیت‌های PV-BPI نسخه ۱.۱ بتا.",
-};
+  path: "/methodology",
+});
 
 export default function MethodologyPage() {
   return (

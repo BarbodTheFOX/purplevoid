@@ -4,6 +4,7 @@ import { ResultsView } from "@/features/test/components/results-view";
 export const metadata: Metadata = {
   title: "نتیجه آزمون",
   description: "نتیجه پنج‌محوری پروفایل رفتاری Purple VOID.",
+  robots: { index: false, follow: false },
 };
 
 export default function ResultsPage() {

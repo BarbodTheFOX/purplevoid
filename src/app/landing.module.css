@@ -214,6 +214,7 @@
   .logoGlass img { width: 128px; }
   .orbitOne { width: 400px; }.orbitTwo { width: 310px; }
   .axisChip { min-width: 62px; font-size: .66rem; }
+  .axisChipFive { right: 2%; }
   .problem, .whatIs, .archetypes, .testPreview, .inside, .boundaries { padding: 72px 0; }
   .problemIntro h2, .sectionHeading h2, .stickyStatement h2, .testCopy h2, .boundaryGlass h2, .finalInner h2 { font-size: clamp(2rem, 10vw, 3rem); }
   .behaviorStream { margin-top: 48px; }
@@ -238,9 +239,9 @@
   --pv-bg-soft: #f7f5f8;
   --pv-ink: #211b27;
   --pv-ink-soft: #514a59;
-  --pv-muted: #756d7d;
+  --pv-muted: #665e6d;
   --pv-violet: #8c29bd;
-  --pv-violet-soft: #a84fd2;
+  --pv-violet-soft: #7f299f;
   --pv-violet-pale: #692685;
   --pv-line: rgba(79, 54, 90, 0.14);
   --pv-glass: rgba(255, 255, 255, 0.54);
@@ -268,7 +269,7 @@
 :global(html[data-theme="light"]) .voidTitle { color: rgba(52,41,58,.52); }
 :global(html[data-theme="light"]) .voidTitle strong { color: #3d2d45; }
 :global(html[data-theme="light"]) .axisChip { border-color: rgba(76,50,88,.15); background: rgba(255,255,255,.55); color: #5f5665; box-shadow: inset 0 1px rgba(255,255,255,.9), 0 8px 24px rgba(61,38,71,.07); }
-:global(html[data-theme="light"]) .scrollCue { color: #756b7a; }
+:global(html[data-theme="light"]) .scrollCue { color: #665d6b; }
 
 :global(html[data-theme="light"]) .problem { background: linear-gradient(180deg, #efedf1, #f4f2f5); }
 :global(html[data-theme="light"]) .whatIs { background: radial-gradient(circle at 10% 45%, rgba(130, 44, 174, .08), transparent 24%), #f0eef2; }
@@ -300,7 +301,7 @@
 :global(html[data-theme="light"]) .boundaryGlass::before,
 :global(html[data-theme="light"]) .testGlass::before { opacity: .35; }
 :global(html[data-theme="light"]) .finalGlow { border-color: rgba(112,52,139,.12); box-shadow: 0 0 0 80px rgba(112,52,139,.025), 0 0 0 160px rgba(112,52,139,.018); }
-:global(html[data-theme="light"]) .finalInner small { color: #756b7c; }
+:global(html[data-theme="light"]) .finalInner small { color: #665d6c; }
 
 @media (prefers-reduced-transparency: reduce) {
   .logoGlass,

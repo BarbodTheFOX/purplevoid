@@ -1,10 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
-import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
+import { SITE_CONFIG } from "@/config/site";
 import "./globals.css";
-
-const allowIndexing = process.env.NEXT_PUBLIC_ALLOW_INDEXING === "true";
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
@@ -12,7 +11,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const protocol =
     requestHeaders.get("x-forwarded-proto") ??
     (host?.startsWith("localhost") || host?.startsWith("127.0.0.1") ? "http" : "https");
-  const origin = host ? `${protocol}://${host}` : "https://purplevoid.example";
+  const requestOrigin = host ? `${protocol}://${host}` : "https://purplevoid.example";
+  const origin = SITE_CONFIG.origin ?? requestOrigin;
 
   return {
     metadataBase: new URL(origin),
@@ -38,7 +38,7 @@ export async function generateMetadata(): Promise<Metadata> {
         "مهارت‌های رفتاری اخیرت در فرایند، شواهد، یادگیری، هیجان و ریسک را مشاهده کن.",
       images: ["/og-minimal.png"],
     },
-    robots: allowIndexing
+    robots: SITE_CONFIG.indexingEnabled
       ? { index: true, follow: true }
       : { index: false, follow: false, nocache: true },
   };

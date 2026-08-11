@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { LIKERT_OPTIONS, QUESTIONS } from "../data/questions";
 import { eraseTestData, readProgress, saveProgress, saveResult } from "../lib/storage";
 import { scoreTest } from "../logic/scoring";
@@ -14,6 +14,8 @@ import { formatPersianNumber } from "@/lib/format";
 export function QuestionFlow() {
   const [progress, setProgress] = useState<StoredProgress | null>(null);
   const [error, setError] = useState("");
+  const [storageError, setStorageError] = useState("");
+  const questionLegendRef = useRef<HTMLLegendElement>(null);
 
   useEffect(() => {
     const stored = readProgress();
@@ -22,9 +24,18 @@ export function QuestionFlow() {
       return;
     }
     const resumed = { ...stored, questionShownAt: Date.now() };
-    saveProgress(resumed);
+    if (!saveProgress(resumed)) {
+      setStorageError("ذخیره خودکار در این مرورگر در دسترس نیست. پاسخ‌ها تا وقتی این صفحه باز است حفظ می‌شوند.");
+    }
     setProgress(resumed);
   }, []);
+
+  const currentQuestionIndex = progress?.currentQuestionIndex;
+
+  useEffect(() => {
+    if (currentQuestionIndex === undefined) return;
+    questionLegendRef.current?.focus();
+  }, [currentQuestionIndex]);
 
   const question = progress ? QUESTIONS[progress.currentQuestionIndex] : null;
   const selected = useMemo(() => {
@@ -35,12 +46,14 @@ export function QuestionFlow() {
   }, [progress, question]);
 
   function updateProgress(updater: (current: StoredProgress) => StoredProgress) {
-    setProgress((current) => {
-      if (!current) return current;
-      const next = updater(current);
-      saveProgress(next);
-      return next;
-    });
+    if (!progress) return;
+    const next = updater(progress);
+    if (!saveProgress(next)) {
+      setStorageError("ذخیره خودکار در این مرورگر در دسترس نیست. پاسخ‌ها تا وقتی این صفحه باز است حفظ می‌شوند.");
+    } else {
+      setStorageError("");
+    }
+    setProgress(next);
   }
 
   function selectAnswer(value: LikertValue | ScenarioOptionId) {
@@ -96,7 +109,10 @@ export function QuestionFlow() {
         tieBreakSeed: progress.tieBreakSeed,
         tieBreakOrder: progress.tieBreakOrder,
       });
-      saveResult(result);
+      if (!saveResult(result)) {
+        setStorageError("مرورگر اجازه ذخیره نتیجه را نمی‌دهد. فضای ذخیره‌سازی یا تنظیمات حریم خصوصی را بررسی کن و دوباره تلاش کن.");
+        return;
+      }
       window.location.assign("/results");
     } catch {
       setError("همه ۳۵ پاسخ باید کامل و معتبر باشند. لطفاً سؤال‌های قبلی را بررسی کن.");
@@ -130,7 +146,7 @@ export function QuestionFlow() {
 
       <form className="question-card" onSubmit={(event) => { event.preventDefault(); next(); }}>
         <fieldset>
-          <legend>
+          <legend ref={questionLegendRef} tabIndex={-1}>
             <span className="question-number" aria-hidden="true">{formatPersianNumber(question.id).padStart(2, "۰")}</span>
             {question.text}
           </legend>
@@ -174,7 +190,7 @@ export function QuestionFlow() {
           )}
         </fieldset>
 
-        <p className="form-error" role="alert">{error}</p>
+        {error ? <p className="form-error" role="alert">{error}</p> : null}
         <div className="question-actions">
           <button
             className="button button-subtle"
@@ -191,7 +207,11 @@ export function QuestionFlow() {
         </div>
       </form>
 
-      <p className="autosave-note"><span aria-hidden="true">✓</span> پاسخ‌ها به‌صورت خودکار روی همین مرورگر ذخیره می‌شوند.</p>
+      {storageError ? (
+        <p className="form-error" role="alert">{storageError}</p>
+      ) : (
+        <p className="autosave-note"><span aria-hidden="true">✓</span> پاسخ‌ها به‌صورت خودکار روی همین مرورگر ذخیره می‌شوند.</p>
+      )}
     </div>
   );
 }

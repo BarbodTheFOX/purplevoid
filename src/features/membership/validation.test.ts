@@ -44,6 +44,38 @@ describe("manual crypto payment", () => {
     expect(isMembershipPaymentReady(MEMBERSHIP_CONFIG)).toBe(false);
   });
 
+  it("rejects empty or whitespace-only payment configuration values", () => {
+    const readyConfig = {
+      ...MEMBERSHIP_CONFIG,
+      enabled: true,
+      price: 120,
+      currency: "USDT",
+      network: "TRC20",
+      walletAddress: "TValidPublicAddress",
+      telegramAdminUsername: "purple_void_admin",
+      paymentGuide: "مبلغ دقیق را فقط روی شبکه اعلام‌شده ارسال کن.",
+      refundPolicy: "شرایط بازپرداخت پیش از پرداخت نمایش داده می‌شود.",
+    };
+
+    for (const field of ["currency", "network", "walletAddress", "telegramAdminUsername", "paymentGuide", "refundPolicy"] as const) {
+      expect(isMembershipPaymentReady({ ...readyConfig, [field]: "   " })).toBe(false);
+    }
+  });
+
+  it("accepts only a complete non-placeholder payment configuration", () => {
+    expect(isMembershipPaymentReady({
+      ...MEMBERSHIP_CONFIG,
+      enabled: true,
+      price: 120,
+      currency: "USDT",
+      network: "TRC20",
+      walletAddress: "TValidPublicAddress",
+      telegramAdminUsername: "purple_void_admin",
+      paymentGuide: "مبلغ دقیق را فقط روی شبکه اعلام‌شده ارسال کن.",
+      refundPolicy: "شرایط بازپرداخت پیش از پرداخت نمایش داده می‌شود.",
+    })).toBe(true);
+  });
+
   it("rejects empty TxID, invalid amount, and a mismatched currency or network", () => {
     const result = paymentEvidenceSchema.safeParse({
       transactionHash: "",

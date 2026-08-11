@@ -16,16 +16,18 @@ const telegramUsernameSchema = z
   });
 
 export const membershipApplicationSchema = z.object({
-  displayName: z.string().trim().min(2, "نام یا نام مستعار را وارد کن.").max(80),
+  displayName: z.string().trim().min(2, "نام یا نام مستعار را وارد کن.").max(80, "نام یا نام مستعار باید حداکثر ۸۰ نویسه باشد."),
   telegramUsername: telegramUsernameSchema,
-  phone: z.string().trim().max(30).optional().or(z.literal("")),
+  phone: z.string().trim().max(30, "شماره تماس باید حداکثر ۳۰ نویسه باشد.").optional().or(z.literal("")),
   archetype: z
-    .enum(["architect", "oracle", "alchemist", "phantom", "sovereign", "balanced", "blended", "unknown"])
+    .enum(["architect", "oracle", "alchemist", "phantom", "sovereign", "balanced", "blended", "unknown"], {
+      error: "نتیجه آرکیتایپ معتبر نیست.",
+    })
     .optional()
     .or(z.literal("")),
   experienceLevel: z.string().trim().min(1, "سطح تجربه در ترید را انتخاب کن."),
-  motivation: z.string().trim().max(600).optional().or(z.literal("")),
-  paymentMethod: z.literal("crypto"),
+  motivation: z.string().trim().max(600, "توضیح علاقه‌مندی باید حداکثر ۶۰۰ نویسه باشد.").optional().or(z.literal("")),
+  paymentMethod: z.literal("crypto", { error: "روش پرداخت معتبر نیست." }),
   termsAccepted: z.literal(true, {
     error: "برای ادامه، قوانین عضویت را تأیید کن.",
   }),
@@ -43,10 +45,10 @@ export const paymentEvidenceSchema = z.object({
   network: z.literal(MEMBERSHIP_CONFIG.network, {
     error: "شبکه با گزینه فعال مطابقت ندارد.",
   }),
-  paidAmount: z.coerce.number().positive("مبلغ باید یک عدد معتبر و بیشتر از صفر باشد."),
+  paidAmount: z.coerce.number({ error: "مبلغ باید یک عدد معتبر باشد." }).positive("مبلغ باید بیشتر از صفر باشد."),
   telegramUsername: telegramUsernameSchema,
-  senderWalletAddress: z.string().trim().max(180).optional().or(z.literal("")),
-  paymentNote: z.string().trim().max(500).optional().or(z.literal("")),
+  senderWalletAddress: z.string().trim().max(180, "آدرس کیف پول باید حداکثر ۱۸۰ نویسه باشد.").optional().or(z.literal("")),
+  paymentNote: z.string().trim().max(500, "توضیحات باید حداکثر ۵۰۰ نویسه باشد.").optional().or(z.literal("")),
 });
 
 type AdminMessageInput = {

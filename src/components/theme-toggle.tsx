@@ -24,7 +24,11 @@ export function ThemeToggle() {
     const nextTheme: Theme = theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = nextTheme;
     document.documentElement.style.colorScheme = nextTheme;
-    window.localStorage.setItem(STORAGE_KEY, nextTheme);
+    try {
+      window.localStorage.setItem(STORAGE_KEY, nextTheme);
+    } catch {
+      // The visual preference still applies for this page when storage is unavailable.
+    }
     setTheme(nextTheme);
   }
 

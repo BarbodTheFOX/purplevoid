@@ -83,8 +83,20 @@ function issuesToErrors(issues: readonly { path: PropertyKey[]; message: string 
   return Object.fromEntries(issues.map((issue) => [String(issue.path[0]), issue.message]));
 }
 
-function FieldError({ message }: { message?: string }) {
-  return message ? <span className={styles.fieldError} role="alert">{message}</span> : null;
+function fieldId(group: "application" | "payment", field: string): string {
+  return `membership-${group}-${field}`;
+}
+
+function focusFirstInvalid(group: "application" | "payment", issues: readonly { path: PropertyKey[] }[]): void {
+  const firstField = issues[0]?.path[0];
+  if (firstField === undefined) return;
+  window.requestAnimationFrame(() => {
+    document.getElementById(fieldId(group, String(firstField)))?.focus();
+  });
+}
+
+function FieldError({ id, message }: { id: string; message?: string }) {
+  return message ? <span id={id} className={styles.fieldError} role="alert">{message}</span> : null;
 }
 
 export function MembershipFlow() {
@@ -151,6 +163,7 @@ export function MembershipFlow() {
     const result = membershipApplicationSchema.safeParse(application);
     if (!result.success) {
       setApplicationErrors(issuesToErrors(result.error.issues));
+      focusFirstInvalid("application", result.error.issues);
       return;
     }
 
@@ -177,6 +190,7 @@ export function MembershipFlow() {
     const result = paymentEvidenceSchema.safeParse(payment);
     if (!result.success) {
       setPaymentErrors(issuesToErrors(result.error.issues));
+      focusFirstInvalid("payment", result.error.issues);
       setSubmitting(false);
       return;
     }
@@ -244,47 +258,47 @@ export function MembershipFlow() {
                 <div className={styles.formGrid}>
                   <label>
                     <span>نام یا نام مستعار <b>*</b></span>
-                    <input aria-invalid={Boolean(applicationErrors.displayName)} value={application.displayName} onChange={(event) => updateApplication("displayName", event.target.value)} />
-                    <FieldError message={applicationErrors.displayName} />
+                    <input id={fieldId("application", "displayName")} aria-invalid={Boolean(applicationErrors.displayName)} aria-describedby={applicationErrors.displayName ? `${fieldId("application", "displayName")}-error` : undefined} value={application.displayName} onChange={(event) => updateApplication("displayName", event.target.value)} />
+                    <FieldError id={`${fieldId("application", "displayName")}-error`} message={applicationErrors.displayName} />
                   </label>
                   <label>
                     <span>آیدی تلگرام <b>*</b></span>
-                    <input dir="ltr" placeholder="@username" aria-invalid={Boolean(applicationErrors.telegramUsername)} value={application.telegramUsername} onChange={(event) => updateApplication("telegramUsername", event.target.value)} />
-                    <FieldError message={applicationErrors.telegramUsername} />
+                    <input id={fieldId("application", "telegramUsername")} dir="ltr" placeholder="@username" aria-invalid={Boolean(applicationErrors.telegramUsername)} aria-describedby={applicationErrors.telegramUsername ? `${fieldId("application", "telegramUsername")}-error` : undefined} value={application.telegramUsername} onChange={(event) => updateApplication("telegramUsername", event.target.value)} />
+                    <FieldError id={`${fieldId("application", "telegramUsername")}-error`} message={applicationErrors.telegramUsername} />
                   </label>
                   <label>
                     <span>شماره تماس <small>اختیاری</small></span>
-                    <input dir="ltr" inputMode="tel" value={application.phone} onChange={(event) => updateApplication("phone", event.target.value)} />
+                    <input id={fieldId("application", "phone")} dir="ltr" inputMode="tel" value={application.phone} onChange={(event) => updateApplication("phone", event.target.value)} />
                   </label>
                   <label>
                     <span>نتیجه آرکیتایپ</span>
-                    <select value={application.archetype} onChange={(event) => updateApplication("archetype", event.target.value)}>
+                    <select id={fieldId("application", "archetype")} value={application.archetype} onChange={(event) => updateApplication("archetype", event.target.value)}>
                       {Object.entries(ARCHETYPE_LABELS).map(([value, label]) => <option value={value} key={value}>{label}</option>)}
                     </select>
                   </label>
                   <label className={styles.fullField}>
                     <span>سطح تجربه در ترید <b>*</b></span>
-                    <select aria-invalid={Boolean(applicationErrors.experienceLevel)} value={application.experienceLevel} onChange={(event) => updateApplication("experienceLevel", event.target.value)}>
+                    <select id={fieldId("application", "experienceLevel")} aria-invalid={Boolean(applicationErrors.experienceLevel)} aria-describedby={applicationErrors.experienceLevel ? `${fieldId("application", "experienceLevel")}-error` : undefined} value={application.experienceLevel} onChange={(event) => updateApplication("experienceLevel", event.target.value)}>
                       <option value="">انتخاب کن</option>
                       {Object.entries(EXPERIENCE_LABELS).map(([value, label]) => <option value={value} key={value}>{label}</option>)}
                     </select>
-                    <FieldError message={applicationErrors.experienceLevel} />
+                    <FieldError id={`${fieldId("application", "experienceLevel")}-error`} message={applicationErrors.experienceLevel} />
                   </label>
                   <label className={styles.fullField}>
                     <span>چرا به عضویت علاقه داری؟ <small>اختیاری</small></span>
-                    <textarea rows={4} maxLength={600} value={application.motivation} onChange={(event) => updateApplication("motivation", event.target.value)} />
+                    <textarea id={fieldId("application", "motivation")} rows={4} maxLength={600} value={application.motivation} onChange={(event) => updateApplication("motivation", event.target.value)} />
                   </label>
                 </div>
 
                 <div className={styles.termsBox}>
                   <h3>قوانین عضویت</h3>
                   <ul>{TERMS.map((term) => <li key={term}>{term}</li>)}</ul>
-                  <p>سیاست بازپرداخت: <code>{MEMBERSHIP_CONFIG.refundPolicy}</code></p>
+                  {MEMBERSHIP_CONFIG.refundPolicy ? <p>سیاست بازپرداخت: <strong>{MEMBERSHIP_CONFIG.refundPolicy}</strong></p> : null}
                   <label className={styles.checkLabel}>
-                    <input type="checkbox" checked={application.termsAccepted} onChange={(event) => updateApplication("termsAccepted", event.target.checked)} />
+                    <input id={fieldId("application", "termsAccepted")} type="checkbox" aria-invalid={Boolean(applicationErrors.termsAccepted)} aria-describedby={applicationErrors.termsAccepted ? `${fieldId("application", "termsAccepted")}-error` : undefined} checked={application.termsAccepted} onChange={(event) => updateApplication("termsAccepted", event.target.checked)} />
                     <span>Purple VOID کانال سیگنال نیست و قوانین عضویت را خوانده‌ام و می‌پذیرم. <b>*</b></span>
                   </label>
-                  <FieldError message={applicationErrors.termsAccepted} />
+                  <FieldError id={`${fieldId("application", "termsAccepted")}-error`} message={applicationErrors.termsAccepted} />
                 </div>
 
                 <button className={styles.primaryButton} type="submit" disabled={!ready}>بررسی اطلاعات</button>
@@ -343,13 +357,25 @@ export function MembershipFlow() {
               <form className={styles.formPanel} onSubmit={submitPayment} noValidate>
                 <header><span>بعد از واریز</span><h2>اطلاعات تراکنش</h2><p>TxID را نگه دار. این فرم تراکنش را روی شبکه تأیید نمی‌کند؛ اطلاعات برای بررسی دستی آماده می‌شود.</p></header>
                 <div className={styles.formGrid}>
-                  <label className={styles.fullField}><span>Transaction Hash / TxID <b>*</b></span><input dir="ltr" value={payment.transactionHash} onChange={(event) => setPayment((current) => ({ ...current, transactionHash: event.target.value }))} /><FieldError message={paymentErrors.transactionHash} /></label>
-                  <label><span>ارز پرداختی <b>*</b></span><input dir="ltr" readOnly value={payment.currency} /></label>
-                  <label><span>شبکه <b>*</b></span><input dir="ltr" readOnly value={payment.network} /></label>
-                  <label><span>مبلغ ارسال‌شده <b>*</b></span><input dir="ltr" inputMode="decimal" value={payment.paidAmount} onChange={(event) => setPayment((current) => ({ ...current, paidAmount: event.target.value }))} /><FieldError message={paymentErrors.paidAmount} /></label>
-                  <label><span>آیدی تلگرام <b>*</b></span><input dir="ltr" value={payment.telegramUsername} onChange={(event) => setPayment((current) => ({ ...current, telegramUsername: event.target.value }))} /><FieldError message={paymentErrors.telegramUsername} /></label>
-                  <label className={styles.fullField}><span>آدرس کیف پول مبدأ <small>اختیاری</small></span><input dir="ltr" value={payment.senderWalletAddress} onChange={(event) => setPayment((current) => ({ ...current, senderWalletAddress: event.target.value }))} /></label>
-                  <label className={styles.fullField}><span>توضیحات <small>اختیاری</small></span><textarea rows={3} maxLength={500} value={payment.paymentNote} onChange={(event) => setPayment((current) => ({ ...current, paymentNote: event.target.value }))} /></label>
+                  <label className={styles.fullField}>
+                    <span>Transaction Hash / TxID <b>*</b></span>
+                    <input id={fieldId("payment", "transactionHash")} dir="ltr" aria-invalid={Boolean(paymentErrors.transactionHash)} aria-describedby={paymentErrors.transactionHash ? `${fieldId("payment", "transactionHash")}-error` : undefined} value={payment.transactionHash} onChange={(event) => setPayment((current) => ({ ...current, transactionHash: event.target.value }))} />
+                    <FieldError id={`${fieldId("payment", "transactionHash")}-error`} message={paymentErrors.transactionHash} />
+                  </label>
+                  <label><span>ارز پرداختی <b>*</b></span><input id={fieldId("payment", "currency")} dir="ltr" readOnly value={payment.currency} /></label>
+                  <label><span>شبکه <b>*</b></span><input id={fieldId("payment", "network")} dir="ltr" readOnly value={payment.network} /></label>
+                  <label>
+                    <span>مبلغ ارسال‌شده <b>*</b></span>
+                    <input id={fieldId("payment", "paidAmount")} dir="ltr" inputMode="decimal" aria-invalid={Boolean(paymentErrors.paidAmount)} aria-describedby={paymentErrors.paidAmount ? `${fieldId("payment", "paidAmount")}-error` : undefined} value={payment.paidAmount} onChange={(event) => setPayment((current) => ({ ...current, paidAmount: event.target.value }))} />
+                    <FieldError id={`${fieldId("payment", "paidAmount")}-error`} message={paymentErrors.paidAmount} />
+                  </label>
+                  <label>
+                    <span>آیدی تلگرام <b>*</b></span>
+                    <input id={fieldId("payment", "telegramUsername")} dir="ltr" aria-invalid={Boolean(paymentErrors.telegramUsername)} aria-describedby={paymentErrors.telegramUsername ? `${fieldId("payment", "telegramUsername")}-error` : undefined} value={payment.telegramUsername} onChange={(event) => setPayment((current) => ({ ...current, telegramUsername: event.target.value }))} />
+                    <FieldError id={`${fieldId("payment", "telegramUsername")}-error`} message={paymentErrors.telegramUsername} />
+                  </label>
+                  <label className={styles.fullField}><span>آدرس کیف پول مبدأ <small>اختیاری</small></span><input id={fieldId("payment", "senderWalletAddress")} dir="ltr" value={payment.senderWalletAddress} onChange={(event) => setPayment((current) => ({ ...current, senderWalletAddress: event.target.value }))} /></label>
+                  <label className={styles.fullField}><span>توضیحات <small>اختیاری</small></span><textarea id={fieldId("payment", "paymentNote")} rows={3} maxLength={500} value={payment.paymentNote} onChange={(event) => setPayment((current) => ({ ...current, paymentNote: event.target.value }))} /></label>
                 </div>
                 <button className={styles.primaryButton} type="submit" disabled={submitting}>{submitting ? "در حال بررسی فرم…" : "ثبت اطلاعات تراکنش"}</button>
               </form>

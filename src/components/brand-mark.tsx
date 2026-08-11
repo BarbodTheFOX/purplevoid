@@ -1,9 +1,9 @@
+/* eslint-disable @next/next/no-html-link-for-pages -- Native anchors avoid a Vinext production RSC prefetch crash. */
 import Image from "next/image";
-import Link from "next/link";
 
 export function BrandMark() {
   return (
-    <Link className="brand-mark" href="/" aria-label="Purple VOID، محصولی از ایونتوم اسپیس">
+    <a className="brand-mark" href="/" aria-label="Purple VOID، محصولی از ایونتوم اسپیس">
       <Image
         className="brand-symbol"
         src="/brand/eventum-symbol-purple.png"
@@ -16,6 +16,6 @@ export function BrandMark() {
         <strong dir="ltr">PURPLE VOID</strong>
         <span>از ایونتوم اسپیس</span>
       </span>
-    </Link>
+    </a>
   );
 }

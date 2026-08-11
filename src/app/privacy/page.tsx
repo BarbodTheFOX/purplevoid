@@ -1,10 +1,11 @@
-import type { Metadata } from "next";
 import { EraseDataButton } from "@/features/test/components/erase-data-button";
+import { buildPageMetadata } from "@/lib/page-metadata";
 
-export const metadata: Metadata = {
-  title: "حریم خصوصی",
+export const metadata = buildPageMetadata({
+  title: "حریم خصوصی | Purple VOID",
   description: "نحوه ذخیره محلی پاسخ‌های آزمون Purple VOID.",
-};
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (
@@ -31,6 +32,10 @@ export default function PrivacyPage() {
           <article className="content-card">
             <h2>اطلاعات پرداخت</h2>
             <p>در مسیر پرداخت فقط TxID عمومی بلاک‌چین، مبلغ، شبکه، ارز و در صورت تمایل آدرس کیف پول مبدأ دریافت می‌شود. Purple VOID هیچ‌وقت Seed Phrase، Private Key یا کد دسترسی کیف پول را درخواست نمی‌کند.</p>
+          </article>
+          <article className="content-card">
+            <h2>ماندگاری روی این مرورگر</h2>
+            <p>داده آزمون تا وقتی خودت آن را پاک نکنی، داده‌های سایت را از تنظیمات مرورگر حذف نکنی یا مرورگر فضای ذخیره‌سازی را پاک نکند، روی همین مرورگر می‌ماند. اگر از دستگاه یا پروفایل مرورگر مشترک استفاده می‌کنی، افراد دیگری که به آن دسترسی دارند ممکن است نتیجه را ببینند؛ بعد از پایان کار داده‌ها را پاک کن.</p>
           </article>
           <article className="content-card">
             <h2>کنترل در اختیار توست</h2>
