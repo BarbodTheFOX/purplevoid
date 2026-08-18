@@ -22,7 +22,12 @@ export default defineConfig({
   webServer: {
     command: `"${process.execPath}" ./node_modules/vinext/dist/cli.js dev --hostname 127.0.0.1 --port 3100`,
     url: "http://127.0.0.1:3100",
-    reuseExistingServer: !process.env.CI,
+    env: {
+      NEXT_PUBLIC_MEMBERSHIP_ENABLED: "true",
+      NEXT_PUBLIC_MEMBERSHIP_WALLET_ADDRESS: "TPartialTestWalletMustNotLeak",
+      NEXT_PUBLIC_MEMBERSHIP_PAYMENT_GUIDE: "راهنمای ناقص آزمایشی نباید نمایش داده شود",
+    },
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 });

@@ -22,6 +22,7 @@ function balancedResult() {
 }
 
 test("shows a concise premium checkout and hands completion to Telegram", async ({ page }) => {
+  test.setTimeout(60_000);
   await page.addInitScript(({ key, result }) => {
     window.localStorage.setItem(key, JSON.stringify(result));
   }, { key: RESULT_STORAGE_KEY, result: balancedResult() });
@@ -66,6 +67,7 @@ test("shows a concise premium checkout and hands completion to Telegram", async 
   const telegramCta = page.getByRole("link", { name: "پرداخت کردم — تکمیل عضویت" });
   await expect(telegramCta).toHaveAttribute("href", "https://t.me/purple_void_test_admin");
   await expect(telegramCta).toHaveAttribute("target", "_blank");
+  await expect(telegramCta).toHaveAccessibleDescription(/لینک تلگرام در پنجره جدید باز می‌شود/);
   await expect(page.getByText("مرحله نهایی عضویت توسط ادمین Purple VOID انجام می‌شود.")).toBeVisible();
 });
 

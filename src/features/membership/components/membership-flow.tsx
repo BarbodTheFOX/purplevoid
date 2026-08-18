@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   MEMBERSHIP_CONFIG,
+  isMembershipPaymentReady,
   membershipPriceLabel,
 } from "@/config/membership";
 import { AXES } from "@/features/test/data/axes";
@@ -36,7 +37,7 @@ const HANDOFF_STEPS = [
   "پرداخت را انجام بده.",
   "از تراکنش Screenshot بگیر.",
   "TxID / Transaction Hash را نگه دار.",
-  "روی دکمه ادامه عضویت بزن.",
+  "روی دکمه تکمیل عضویت بزن.",
   "Screenshot و TxID را برای ادمین Purple VOID ارسال کن.",
 ] as const;
 
@@ -65,7 +66,19 @@ export function MembershipFlow() {
   }, []);
 
   const adminMessage = useMemo(() => buildAdminMessage(archetype), [archetype]);
-  const telegramUrl = buildTelegramAdminUrl(MEMBERSHIP_CONFIG.telegramAdminUsername);
+  const paymentReady = isMembershipPaymentReady(MEMBERSHIP_CONFIG);
+  const telegramUrl = paymentReady
+    ? buildTelegramAdminUrl(MEMBERSHIP_CONFIG.telegramAdminUsername)
+    : null;
+  const priceLabel = paymentReady ? membershipPriceLabel() : "قیمت هنوز تنظیم نشده";
+  const currencyLabel = paymentReady ? MEMBERSHIP_CONFIG.currency : "ارز هنوز تنظیم نشده";
+  const networkLabel = paymentReady ? MEMBERSHIP_CONFIG.network : "شبکه هنوز تنظیم نشده";
+  const walletLabel = paymentReady
+    ? MEMBERSHIP_CONFIG.walletAddress
+    : "Wallet Address هنوز تنظیم نشده";
+  const paymentGuide = paymentReady
+    ? MEMBERSHIP_CONFIG.paymentGuide
+    : "جزئیات واقعی پرداخت پس از تکمیل Config در همین بخش نمایش داده می‌شود.";
 
   async function copyText(target: CopyTarget, text: string) {
     try {
@@ -106,37 +119,49 @@ export function MembershipFlow() {
           <div className={styles.checkoutGrid}>
             <article className={styles.paymentPanel} aria-labelledby="payment-title">
               <header className={styles.panelHeader}>
-                <span>اطلاعات پرداخت</span>
-                <h2 id="payment-title">پرداخت عضویت</h2>
-                <p>{MEMBERSHIP_CONFIG.paymentGuide}</p>
+                <span>پرداخت عضویت</span>
+                <h2 id="payment-title">اطلاعات پرداخت</h2>
+                <p>{paymentGuide}</p>
+                {!paymentReady ? (
+                  <p id="membership-config-status" className={styles.configNotice} role="status">
+                    ساختار پرداخت آماده است، اما اطلاعات واقعی هنوز کامل نشده؛ کپی Wallet و تکمیل عضویت فعلاً غیرفعال‌اند.
+                  </p>
+                ) : null}
               </header>
 
               <dl className={styles.paymentFacts}>
                 <div>
                   <dt>هزینه عضویت</dt>
-                  <dd>{membershipPriceLabel()}</dd>
+                  <dd>{priceLabel}</dd>
                 </div>
                 <div>
                   <dt>ارز پرداخت</dt>
-                  <dd dir="ltr">{MEMBERSHIP_CONFIG.currency}</dd>
+                  <dd dir={paymentReady ? "ltr" : "rtl"}>{currencyLabel}</dd>
                 </div>
                 <div>
                   <dt>شبکه</dt>
-                  <dd dir="ltr">{MEMBERSHIP_CONFIG.network}</dd>
+                  <dd dir={paymentReady ? "ltr" : "rtl"}>{networkLabel}</dd>
                 </div>
               </dl>
 
               <div className={styles.walletBlock}>
                 <div className={styles.walletHeading}>
                   <span>آدرس Wallet</span>
-                  <span className={styles.ltrBadge} dir="ltr">{MEMBERSHIP_CONFIG.network}</span>
+                  <span className={styles.ltrBadge} dir={paymentReady ? "ltr" : "rtl"}>{networkLabel}</span>
                 </div>
-                <code dir="ltr">{MEMBERSHIP_CONFIG.walletAddress}</code>
+                <code
+                  className={!paymentReady ? styles.placeholderValue : undefined}
+                  dir={paymentReady ? "ltr" : "rtl"}
+                >
+                  {walletLabel}
+                </code>
                 <button
                   className={styles.copyButton}
                   type="button"
-                  disabled={!ready}
-                  onClick={() => copyText("wallet", MEMBERSHIP_CONFIG.walletAddress)}
+                  disabled={!ready || !paymentReady}
+                  onClick={paymentReady
+                    ? () => copyText("wallet", MEMBERSHIP_CONFIG.walletAddress)
+                    : undefined}
                 >
                   کپی آدرس
                 </button>
@@ -151,7 +176,8 @@ export function MembershipFlow() {
               </div>
             </article>
 
-            <aside className={styles.processPanel} aria-labelledby="after-payment-title">
+            <div className={styles.checkoutSide}>
+              <aside className={styles.processPanel} aria-labelledby="after-payment-title">
               <span className={styles.eyebrow}>مسیر ادامه</span>
               <h2 id="after-payment-title">بعد از پرداخت چه کار کنم؟</h2>
               <ol>
@@ -163,10 +189,9 @@ export function MembershipFlow() {
                 ))}
               </ol>
               <p className={styles.processNote}>رسید داخل سایت آپلود نمی‌شود؛ آن را مستقیماً در تلگرام برای ادمین بفرست.</p>
-            </aside>
-          </div>
+              </aside>
 
-          <section className={styles.handoffPanel} aria-labelledby="handoff-title">
+              <section className={styles.handoffPanel} aria-labelledby="handoff-title">
             <div className={styles.handoffCopy}>
               <span className={styles.eyebrow}>آماده برای ارسال</span>
               <h2 id="handoff-title">متن برای ادمین</h2>
@@ -195,17 +220,32 @@ export function MembershipFlow() {
                   href={telegramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-describedby="telegram-handoff-note"
+                  aria-describedby="telegram-handoff-note telegram-new-window-note"
                 >
                   پرداخت کردم — تکمیل عضویت
                 </a>
-              ) : null}
+              ) : (
+                <button
+                  className={styles.primaryButton}
+                  type="button"
+                  disabled
+                  aria-describedby="membership-config-status telegram-handoff-note"
+                >
+                  پرداخت کردم — تکمیل عضویت
+                </button>
+              )}
               <small id="telegram-handoff-note">
                 مرحله نهایی عضویت توسط ادمین Purple VOID انجام می‌شود.
-                <span className={styles.srOnly}> لینک تلگرام در پنجره جدید باز می‌شود.</span>
               </small>
+              {telegramUrl ? (
+                <span id="telegram-new-window-note" className={styles.srOnly}>
+                  لینک تلگرام در پنجره جدید باز می‌شود.
+                </span>
+              ) : null}
             </div>
-          </section>
+              </section>
+            </div>
+          </div>
         </div>
       </section>
     </main>
